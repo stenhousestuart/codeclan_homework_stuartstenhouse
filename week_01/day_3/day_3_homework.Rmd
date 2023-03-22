@@ -1,0 +1,126 @@
+---
+title: "Day 3 Homework"
+output: html_notebook
+---
+
+# Load Libraries
+```{r}
+library(tidyverse)
+```
+
+# Read In Data
+```{r}
+movies <- read_csv("data/movies.csv")
+```
+
+# View Data
+```{r}
+glimpse(movies)
+```
+```{r}
+head(movies, 10)
+```
+
+# MVP
+
+## Question 1
+After you’ve read in the data and assigned it to a variable with a useful name, investigate it. Write down some ideas for what you could do to further investigate/clean this data using what you’ve learned today (no need to code it though, just jot down thoughts and ideas). Feel free to also write down any general thoughts you get looking at the data - this task is just to get you thinking about data and data cleaning/prepping.
+
+- The naming of the variables all looks ok and consistent with snake casing.
+- Some observations have a runtime of 0, which cannot be possible. Since this suggests that we don't have this data, should it be updated to NA?
+- Some observations have a budget and/or revenue of 0, which doesn't seem likely. It's difficult to say definitively if this data is correct or if it suggests the data is missing or incorrect, since technically a budget could have been made on 0 budget (eg. By volunteers) and/or have made 0 revenue.
+- Some observations to seem to have NA values in some of the variables.
+- The formatting of the budget data varies.
+
+## Question 2
+A lot of interesting stuff in there! But for now, we are only interested in the movies’ titles, their runtime as well as their budget. Select the three columns that contain this information and save them into a new variable called movies_selected. Hint: you will have to make a choice between original_title and title.
+
+```{r}
+# Explore head and tail of data arranged by original_title to try and establish differences between original_title and title.
+movies_arranged <- movies %>% 
+  arrange(original_title)
+
+head(movies_arranged, 20)
+tail(movies_arranged, 20)
+```
+
+```{r}
+# As the original_title looks to contain the title in the original language and the title the language translated in English, I will use the title field.
+
+movies_selected <- movies %>% 
+  select(title, runtime, budget)
+
+movies_selected
+```
+
+## Question 3
+Ok, now take your subsetted data movies_selected, and count the number of missing values in each column.
+
+```{r}
+colSums(is.na(movies_selected))
+```
+
+## Question 4
+There’s not too many NAs, but there are actually quite a few movies with a runtime of 0 in this dataset. Since it’s impossible for a movie to have a runtime of 0, use the function na_if to convert runtimes of length 0 into NAs. Save this into a new object called movies_runtime. Then count how many missing values there are now in the column runtime.
+
+```{r}
+# Convert any 0 values in the runtime column to NAs
+movies_runtime <- movies_selected %>% 
+  mutate(runtime = na_if(runtime, 0))
+```
+
+```{r}
+# Check how many NAs there are in each column now.
+colSums(is.na(movies_runtime))
+```
+
+## Question 5
+Impute the missing values in runtime with the median runtime using coalesce and save this into a new object called movies_imputed. There should now be no missing values in the column runtime - check this to make sure.
+
+```{r}
+# Replace NA runtimes values with the median runtime, which is calculated with na.rm set to TRUE.
+movies_imputed <- movies_runtime %>% 
+  mutate(runtime = coalesce(runtime, median(runtime, na.rm = TRUE)))
+```
+
+```{r}
+# Check if there are any remaining NA valus in runtime.
+colSums(is.na(movies_imputed))
+```
+
+## Question 6
+Finally, use the slice_min and slice_max functions on movies_imputed to get the movies with the 10 shortest and 10 longest runtimes.
+
+```{r}
+movies_imputed %>% 
+  slice_max(runtime, n = 10)
+
+movies_imputed %>% 
+  slice_min(runtime, n = 10)
+```
+
+## Question 7
+Using the if_else function, impute anything with a budget below $100 with the median budget. Overwrite your movies_imputed so it contains the new budget values.
+
+* I got stuck with this question, recieving an error that the data needed to be numeric when trying to calculate the median. I initially thougt that this was due to some of the budget values being in scientific notation format, but when trying to calculate the median for runtime I recieved the same errors.
+
+```{r}
+glimpse(movies_imputed)
+```
+```{r}
+movies_imputed %>%
+  median(budget)
+```
+
+```{r}
+movies_imputed %>%
+  mutate(budget = if_else(budget < 100, median(budget), budget))
+```
+
+```{r}
+# The above mutate doesn't return any errors, but when you arrange by budget it shows values that are under 100 that should have been replaced by the median.
+
+movies_imputed %>%
+  arrange(budget)
+```
+
