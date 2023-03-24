@@ -1,0 +1,189 @@
+---
+title: "Week 1 / Day 5 Homework"
+output: html_notebook
+---
+
+# Library Setup 
+```{r}
+library(tidyverse)
+library(janitor)
+```
+
+# Investigate Data
+
+## Read in Data
+```{r}
+books <- read_csv("data/books.csv")
+```
+
+## Explore Data
+```{r}
+# View Number of Observations and Variables
+dim(books)
+# View Variable Names
+names(books)
+# View Variable Types
+glimpse(books)
+# View Data Visually
+view(books)
+# View Small Sample of Observations 
+head(books)
+tail(books)
+```
+
+# Clean Data
+
+## Standardise Variable Names
+
+```{r}
+# Standardise Vvariable names.
+
+books %>% 
+  clean_names() %>% 
+  names()
+
+```
+
+```{r}
+# Manually rename variable names where appropriate.
+
+books %>% 
+  rename("row_id" = "rowid") %>% 
+  names()
+
+```
+## Tidy Observation Data
+
+### Publication Date
+
+When initially trying to complete the next step of formatting the `publication_date` and extracting a year an error was returned that two values had failed to parse. I identified these by filtering the newly created `year` value for NAs and identified the two books with the error. In both cases the original `publication_dates` looked to be invalid - as there as only 30 days in both November and June. Therefor, in this case, I recoded these dates to the 30th of the month and year specified instead of the 31st.
+
+```{r}
+# Recode 2x invalid dates.
+
+books_corrected_dates <- books %>%
+  mutate(publication_date = recode(publication_date, "11/31/2000" = "11/30/2000", "6/31/1982" = "6/30/1982"))
+```
+
+```{r}
+# Use lubridate package to format `publicaton_date` format + create new `year` variable with the year only.
+
+books_date_cleaned <- books_corrected_dates %>% 
+  mutate(publication_date = mdy(publication_date),
+         year = year(publication_date))
+```
+
+To check that this had been succesfful, I filtered the `year` column for NAs and 0 were returned.
+
+```{r}
+# Check NA variable for NAs.
+
+books_date_cleaned %>% 
+  filter(is.na(year))
+```
+
+## Missing Values
+
+### Check for NAs
+
+```{r}
+books_date_cleaned %>% 
+  summarise(across(.fns = ~sum(is.na(.x))))
+```
+
+No NAs were identified, so I then checked for non-standard NAs - by checking for `0` in `dbl` variables and `NA` and `na` sring values in `chr` variables.
+
+### Check for Non-Standard NAs
+
+```{r}
+books_date_cleaned %>% 
+  summarise(title_na = sum(title == "na"),
+            title_NA = sum(title == "NA"),
+            authors_na = sum(title == "na"),
+            authors_NA = sum(title == "NA"),
+            avg_rating_0 = sum(average_rating == 0),
+            pages_0 = sum(num_pages == 0),
+            ratings_count_0 = sum( ratings_count == 0),
+            text_reviews_count_0 = sum(text_reviews_count == 0),
+            publication_date_na = sum(publication_date == 0),
+            publisher_na = sum(title == "na"),
+            publisher_NA = sum(title == "NA")
+            )
+```
+
+#### Publication Date
+
+1 observation returned a `0` for the `publication_date`. I checked this below but was unable to see why this was returned. As the `year` variable appeared to have populated correctly and it was this variable that I intend to use in analysis, I decided no further action was needed.
+
+```{r}
+books_date_cleaned %>% 
+  select(title, publication_date, year ) %>% 
+  filter(publication_date == 0)
+```
+
+Below I have detailed my approach tothe observations that have returned non-standard missing values.
+
+#### Ratings
+25 books have an `average_rating` of 0; however, 80 books have a `ratings_count` of 0. This means that some books have a `average_rating` value despite having `ratings_count` = 0 indicating incorrect data.
+
+Approach: Where `average_rating` data is being used and `average_rating` = 0, filter out observation.
+Approach: Where `ratings_count` data is being used and `ratings_count` = 0, filter out observation.
+
+Other approaches would be to drop these observations or investigate further; however, the above approach has been taken to taken to utilise skills learned during week 1.
+
+```{r}
+# Filter out observations with 0 values in `average_rating` and `ratings_count` variables.
+
+books_ratings_cleaned <- books_date_cleaned %>% 
+  filter(average_rating != 0,
+         ratings_count != 0)
+
+```
+
+```{r}
+# Check that filtering has worked.
+
+books_ratings_cleaned %>% 
+  summarise(average_rating_0 = sum(average_rating == 0),
+            average_rating_na = sum(is.na(average_rating)),
+            ratings_count_0 = sum(ratings_count == 0),
+            ratings_count_na = sum(is.na(ratings_count))
+            )
+```
+
+#### Pages
+76 books have 0 `num_pages` which is not possible.
+
+Approach: Where `num_pages` = 0, impute median `num_pages` from across all observations.
+
+Other approaches could include imputing alternative data eg. mean.
+
+```{r}
+# Code for Imputing mean (num_pages) to replace observations with 0 pages.
+
+books_pages_cleaned <- books_ratings_cleaned %>% 
+  mutate(num_pages = recode(num_pages, "0" = median(num_pages)))
+
+```
+
+```{r}
+# Check that no pages have a 0 value any more.
+
+books_pages_cleaned %>% 
+  summarise(num_pages_0 = sum(num_pages == 0))
+
+```
+
+## Consolidate Cleaned Data
+
+To consolidate the cleaned data I assigned this to a single object that would be used moving forward.
+
+```{r}
+# Assign cleaned data to appropriately named object for further analysis.
+
+books_clean <- books_pages_cleaned
+
+```
+
+
+
