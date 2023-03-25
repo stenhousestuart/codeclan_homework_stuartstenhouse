@@ -70,7 +70,7 @@ books_corrected_dates <- books %>%
 
 books_date_cleaned <- books_corrected_dates %>% 
   mutate(publication_date = mdy(publication_date),
-         year = year(publication_date))
+         publication_year = year(publication_date))
 ```
 
 To check that this had been succesfful, I filtered the `year` column for NAs and 0 were returned.
@@ -79,7 +79,7 @@ To check that this had been succesfful, I filtered the `year` column for NAs and
 # Check NA variable for NAs.
 
 books_date_cleaned %>% 
-  filter(is.na(year))
+  filter(is.na(publication_year))
 ```
 
 ## Missing Values
@@ -117,11 +117,11 @@ books_date_cleaned %>%
 
 ```{r}
 books_date_cleaned %>% 
-  select(title, publication_date, year ) %>% 
+  select(title, publication_date, publication_year) %>% 
   filter(publication_date == 0)
 ```
 
-Below I have detailed my approach tothe observations that have returned non-standard missing values.
+Below I have detailed my approach to the observations that have returned non-standard missing values.
 
 #### Ratings
 25 books have an `average_rating` of 0; however, 80 books have a `ratings_count` of 0. This means that some books have a `average_rating` value despite having `ratings_count` = 0 indicating incorrect data.
@@ -159,7 +159,7 @@ Approach: Where `num_pages` = 0, impute median `num_pages` from across all obser
 Other approaches could include imputing alternative data eg. mean.
 
 ```{r}
-# Code for Imputing mean (num_pages) to replace observations with 0 pages.
+# Code for Imputing mean(num_pages) to replace observations with 0 pages.
 
 books_pages_cleaned <- books_ratings_cleaned %>% 
   mutate(num_pages = recode(num_pages, "0" = median(num_pages)))
@@ -185,5 +185,88 @@ books_clean <- books_pages_cleaned
 
 ```
 
+# Question 1: What are the top 5 "hits" and "flops" by authors, based on the difference in a books rating and the authors average rating.
+
+Thoughts from Findings Below: Mary B. Collins appears to have had varied ratings, with both the biggest hit which was `1.93` higher than her average and the biggest flop which was `-1.93` less than her average.
+
+```{r}
+books_with_rating_differences <- books_clean %>% 
+  group_by(authors) %>% 
+  mutate(authors_average_rating = mean(average_rating), 
+         .after = average_rating) %>%
+  mutate(rating_difference = average_rating - authors_average_rating, 
+         .after = authors_average_rating) %>%
+  ungroup()
+
+books_with_rating_differences %>%
+  select(title, authors, average_rating, 
+         authors_average_rating, rating_difference) %>% 
+  slice_max(rating_difference, n = 5)
+
+books_with_rating_differences %>%
+  select(title, authors, average_rating, 
+         authors_average_rating, rating_difference) %>% 
+  slice_min(rating_difference, n = 5)
+```
+
+# Question 2: Who are the most popular authors of all time based an a mean of their avg. rating across all of their books?
+
+Thoughts from Findings Below: Unfortunately as the authors are stored in a way that they are grouped in with other others, it is difficult to draw too many conclusions from this. It has however highlighted some additional issues with the authors data, showing "Anonymous" and "Cook's Illustrated Magazine" as author values. Therefore, these values and any other invalid author values would need to be considered for a more throrough analysis.
+
+```{r}
+books_clean %>%
+  group_by(authors) %>% 
+  summarise(authors_average_rating = mean(average_rating)) %>% 
+  select(authors, authors_average_rating) %>% 
+  arrange(desc(authors_average_rating))
+```
+
+# Question 3: Which 10 years have the highest mean avg. rating?
+
+Thoughts from Findings Below: Since the year 2000, only 2 years feature in the top 10! Are books getting worse or are critics getting harsher? What books were released in 2013 and 2016 that made the difference in these years?
+
+```{r}
+books_clean %>% 
+  group_by(publication_year) %>% 
+  summarise(year_average_rating = mean(average_rating)) %>% 
+  select(publication_year, year_average_rating) %>% 
+  arrange(desc(year_average_rating))
+```
 
 
+
+Steps:
+- group_by(year)
+- mutate(year_average_rating = mean(average_rating))
+#- arrange(desc(year_average_rating))
+- slice_max(year_average_rating, n = 10)
+
+# Finding 4
+What is the trend in the number of reviews being completed over the last 10 years? 
+
+NB- group by year, sum number of reviews in new column, use lag to create dif_in_reviews, arrange by year.
+
+Steps:
+- group_by(year)
+- mutate(year_reviews_count = sum(text_reviews_count))
+- mutate(ly_reviews_count = lag(year_reviews_count))
+- mutate(yoy_reviews_count_change = year_reviews_count - ly_reviews_count)
+- assign to new variable
+
+- with new variable
+- group_by(year)
+- select(year, yoy_reviews_count_change)
+- arrange(desc(year))
+- head(10)
+
+# Finding 5
+Top 5 languages books have been published in, excluding English (GB or US).
+
+Steps:
+- filter(language_code != "en" | "eng-US)
+- assign to new variable
+
+- with new variable
+- group_by(language_code)
+- mutate(total_books_by_language = n())
+- slice_max(total_books_by_language, n = 5)
