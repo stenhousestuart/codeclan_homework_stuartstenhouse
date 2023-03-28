@@ -22,6 +22,10 @@ card_data <- read_csv("data/CardBase.csv")
 customer_data <- read_csv("data/CustomerBase.csv")
 fraud_data <- read_csv("data/FraudBase.csv")
 transaction_data <- read_csv("data/TransactionBase.csv")
+
+# reading in the data and cleaning the names could've been done in one step:
+
+# card_data <- read_csv("data/CardBase.csv") %>% clean_names()
 ```
 
 #### Explore Data
