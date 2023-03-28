@@ -1,0 +1,115 @@
+---
+title: "Week 2 / Day 2 / Homework"
+output: html_notebook
+---
+
+# Load Libraries
+```{r}
+library(tidyverse)
+```
+
+# MVP
+
+## Q1.
+Load the code_clan_tweets.csv data. Find the number of rows, columns, and list all the variable names.
+
+```{r}
+code_clan_tweets <- read_csv("data/code_clan_tweets.csv")
+```
+
+```{r}
+glimpse(code_clan_tweets)
+```
+
+## Q2.
+Find the total number of favourites (stored in favorite_count) that CodeClan tweets have got. Don’t add a tweet’s favorite_count to the total when the tweet was quoted (see the is_quote variable).
+
+```{r}
+code_clan_tweets %>% 
+  filter(is_quote == FALSE) %>% 
+  summarise(total_number_of_favourites = sum(favorite_count))
+```
+
+## Q3.
+Summarise the mean number of retweets (retweet_count), split by the type of platform that was used to tweet (source). Again, omit quoted tweets from the mean.
+
+```{r}
+code_clan_tweets %>% 
+  filter(is_quote == FALSE) %>% 
+  group_by(source) %>% 
+  summarise(mean_retweets = mean(retweet_count)) %>% 
+  arrange(desc(mean_retweets))
+```
+
+## Q4.
+Count the total number of likes (i.e. total of favorite_count), split by media type, and arrange them from most likes to least. Assume that any tweets without a listed media type are of type “text”.
+
+```{r}
+code_clan_tweets %>% 
+  mutate(media_type = replace_na(media_type, "text")) %>% 
+  group_by(media_type) %>% 
+  summarise(total_likes = sum(favorite_count)) %>% 
+  arrange(desc(total_likes))
+```
+## Q5.
+Find the mean number of characters that a CodeClan tweet contains. You can either find a way to count the text in the text variable, or use the variable display_text_width which contains a count. Checking both would be a good idea if possible to see if they match (but it’s not essential).
+
+I tried this using the `str_length()` function and using the `display_text_width` values; however, different values were returned. Looking at a specific tweet `tweet_id` 374, `str_length()` returns 80 and `display_text_width` shows 100. Using Microsoft Word and online word counters the count is shown as 80; however, I haven't been able to identify why the `display_text_width` may be different.
+
+```{r}
+code_clan_tweets %>% 
+  summarise(avg_character_number = mean(str_length(text)))
+```
+
+```{r}
+code_clan_tweets %>% 
+  summarise(avg_character_number = mean(display_text_width))
+```
+
+```{r}
+code_clan_tweets %>% 
+  filter(tweet_id == 347) %>% 
+  mutate(count = str_length(text))
+```
+
+## Q6.
+The code_clan_info.csv data file contains status_url along with other info. Load this in, and join it to the code_clan_tweets tibble, so that you have a status_url for each tweet. Decide which variable to join the tibbles on.
+
+```{r}
+code_clan_info <- read_csv("data/code_clan_info.csv", 
+                           col_select = c("tweet_id", "status_url"))
+```
+
+```{r}
+glimpse(code_clan_info)
+```
+
+```{r}
+code_clan_tweets_joined <- code_clan_info %>%
+  inner_join(code_clan_tweets, code_clan_info, by = "tweet_id")
+```
+
+
+## Q7.
+From your new joined data, create a new tibble codeclan_hashtags containing only tweet_id and hashtags, then convert hashtags into lowercase for analysis. Keep only those tweets with hashtags.
+
+```{r}
+codeclan_hashtags <- code_clan_tweets_joined %>% 
+  select(tweet_id, hashtags) %>% 
+  mutate(hashtags = str_to_lower(hashtags)) %>% 
+  drop_na() 
+```
+
+# Extension
+
+## Q8.
+Some tweets have more than one hashtag, denoted by the c( symbols at the start of the string. Use the str_sub() and str_detect() functions and your codeclan_hashtags tibble from above to find all the cases in which the hashtag string begins with charactersc(.
+
+```{r}
+pattern <- "c\\("
+
+codeclan_hashtags %>% 
+  mutate(hashtags_start = str_sub(hashtags, start = 1, end = 2),
+         more_than_one_hashtag = str_detect(hashtags_start, pattern))
+
+```
