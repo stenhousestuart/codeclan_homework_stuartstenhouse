@@ -1934,7 +1934,7 @@ numbers less than 10, or divides the number by 10 for numbers greater
 than 10. For anything else return “Invalid input”.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubXlfZnVuY3Rpb24gPC0gZnVuY3Rpb24oeCkge1xuICBcbiAgaWYgKGlzLmNoYXJhY3Rlcih4KSkgeyBcbiAgICBzdHJfYyhcIlRoZSBhbnN3ZXIgaXMgXCIsIHgpXG4gIH0gXG4gIGVsc2UgaWYgKGlzLm51bWVyaWMoeCkgJiAoeCA8IDEwKSkge1xuICAgIHByaW50KHgpXG4gIH0gXG4gIGVsc2UgaWYgKGlzLm51bWVyaWMoeCkgJiAoeCA+IDEwKSkge1xuICAgIHggPC0gIHggLyAxMFxuICAgIHByaW50KHgpXG4gIH0gXG4gIGVsc2Uge1xuICAgIHByaW50KFwiSW52YWxpZCBJbnB1dFwiKVxuICB9XG59ICAgIFxuICBcbmBgYCJ9 -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubXlfZnVuY3Rpb24gPC0gZnVuY3Rpb24oeCkge1xuICBcbiAgaWYgKGlzLmNoYXJhY3Rlcih4KSkgeyBcbiAgICBzdHJfYyhcIlRoZSBhbnN3ZXIgaXMgXCIsIHgpXG4gIH0gXG4gIGVsc2UgaWYgKGlzLm51bWVyaWMoeCkgJiAoeCA8IDEwKSkge1xuICAgIHByaW50KHgpXG4gIH0gXG4gIGVsc2UgaWYgKGlzLm51bWVyaWMoeCkgJiAoeCA+IDEwKSkge1xuICAgIHByaW50KHggLyAxMClcbiAgfSBcbiAgZWxzZSB7XG4gICAgcHJpbnQoXCJJbnZhbGlkIElucHV0XCIpXG4gIH1cbn0gICAgXG4gIFxuYGBgIn0= -->
 <pre class="r"><code>my_function &lt;- function(x) {
   
   if (is.character(x)) { 
@@ -1944,8 +1944,7 @@ than 10. For anything else return “Invalid input”.</p>
     print(x)
   } 
   else if (is.numeric(x) &amp; (x &gt; 10)) {
-    x &lt;-  x / 10
-    print(x)
+    print(x / 10)
   } 
   else {
     print(&quot;Invalid Input&quot;)
@@ -1957,29 +1956,98 @@ than 10. For anything else return “Invalid input”.</p>
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubXlfZnVuY3Rpb24oXCJTdHVhcnRcIikgIyBXb3JraW5nXG5gYGAifQ== -->
-<pre class="r"><code>my_function(&quot;Stuart&quot;) # Working</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubXlfZnVuY3Rpb24oaW5wdXQxKSAjIFdvcmtpbmdcbmBgYCJ9 -->
+<pre class="r"><code>my_function(input1) # Working</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwiVGhlIGFuc3dlciBpcyBTdHVhcnRcIlxuIn0= -->
-<pre><code>[1] &quot;The answer is Stuart&quot;</code></pre>
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwiVGhlIGFuc3dlciBpcyA1XCJcbiJ9 -->
+<pre><code>[1] &quot;The answer is 5&quot;</code></pre>
 <!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubXlfZnVuY3Rpb24oMikgIyBXb3JraW5nXG5gYGAifQ== -->
-<pre class="r"><code>my_function(2) # Working</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubXlfZnVuY3Rpb24oaW5wdXQyKSAjIFdvcmtpbmdcbmBgYCJ9 -->
+<pre class="r"><code>my_function(input2) # Working</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDJcbiJ9 -->
-<pre><code>[1] 2</code></pre>
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDlcbiJ9 -->
+<pre><code>[1] 9</code></pre>
 <!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubXlfZnVuY3Rpb24oNDApICMgV29ya2luZ1xuYGBgIn0= -->
-<pre class="r"><code>my_function(40) # Working</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubXlfZnVuY3Rpb24oaW5wdXQzKSAjIFdvcmtpbmdcbmBgYCJ9 -->
+<pre class="r"><code>my_function(input3) # Working</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDRcbiJ9 -->
-<pre><code>[1] 4</code></pre>
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDEuMVxuIn0= -->
+<pre><code>[1] 1.1</code></pre>
 <!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubXlfZnVuY3Rpb24oQCkgICMgTm90IFdvcmtpbmdcbmBgYCJ9 -->
-<pre class="r"><code>my_function(@)  # Not Working</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubXlfZnVuY3Rpb24oaW5wdXQ0KSAgIyBXb3JraW5nXG5gYGAifQ== -->
+<pre class="r"><code>my_function(input4)  # Working</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiRXJyb3I6IHVuZXhwZWN0ZWQgJ0AnIGluIFwibXlfZnVuY3Rpb24oQFwiXG4ifQ== -->
-<pre><code>Error: unexpected &#39;@&#39; in &quot;my_function(@&quot;</code></pre>
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwiSW52YWxpZCBJbnB1dFwiXG4ifQ== -->
+<pre><code>[1] &quot;Invalid Input&quot;</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="q5.-updated-from-review" class="section level3">
+<h3>Q5. UPDATED FROM REVIEW</h3>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG5pbnB1dDEgPC0gXCI1XCJcbmlucHV0MiA8LSA5XG5pbnB1dDMgPC0gMTFcbmlucHV0NCA8LSAxMFxuXG5mb3JtYXRfYW5zd2VyIDwtIGZ1bmN0aW9uKHgpIHtcbiMgQ0hFQ0s6IGlmIHRoZSBpbnB1dCBpcyBhIGNoYXJhY3Rlci4gXG5pZiAoaXMuY2hhcmFjdGVyKHgpKSB7XG4jIERPIFRISVM6IGlzIHRoZSBpbnB1dCBpcyBhIGNoYXJhY3Rlci5cbiAgcHJpbnQoc3RyX2MoXCJUaGUgYW5zd2VyIGlzOiBcIiwgeCkpXG4jIENIRUNLOiBJZiB0aGUgaW5wdXQgaGFzIGJlZW4gY2hlY2tlZCBhbmQgaXQgaXNuJ3QgYSBjaGFyYWN0ZXIsIGNoZWNrIGlmIGl0J3MgYSBudW1iZXIuIFxufSBlbHNlIGlmIChpcy5udW1lcmljKHgpKSB7XG4jIENIRUNLOiBJZiB0aGUgaW5wdXQgaXMgYSBudW1iZXIgY2hlY2sgaWYgaXQncyBsZXNzIHRoYW4gMTAuIFxuICBpZiAoeCA8IDEwKSB7XG4jIERPIFRISVM6IGlmIHRoZSBudW1iZXIgaXMgbGVzcyB0aGFuIDEwLlxuICAgIHByaW50KHgpXG4jIENIRUNLOiBJZiB0aGUgbnVtYmVyIGlzIG5vdCBsZXNzIHRoYW4gMTAsIGNoZWNrIGlmIGl0IGlzIGdyZWF0ZXIgdGhhbiAxMC5cbiAgfSBlbHNlIGlmICh4ID4gMTApIHtcbiMgRE8gVEhJUzogaWYgdGhlIG51bWJlciBpZiBncmVhdGVyIHRoYW4gMTAuXG4gICAgcHJpbnQoeCAvIDEwKVxuIyBETyBUSElTOiBJZiB0aGUgbnVtYmVyIGlzIG5vdCBncmVhdGVyIG9yIGxlc3MgdGhhbiB0ZW4gKGllLiBpdCBpcyAxMCkgZG8gdGhpcy5cbiAgfSBlbHNlIHtcbiAgICBwcmludChcIkludmFsaWQgSW5wdXRcIilcbiAgfVxuIyBETyBUSElTOiBpZiB0aGUgaW5wdXQgaXMgbm90IGEgbnVtYmVyIG9yIGEgY2hhcmFjdGVyLlxufSBlbHNlIHtcbiAgcHJpbnQoXCJJbnZhbGlkIElucHV0XCIpXG4gIH1cbn1cblxuYGBgIn0= -->
+<pre class="r"><code>
+input1 &lt;- &quot;5&quot;
+input2 &lt;- 9
+input3 &lt;- 11
+input4 &lt;- 10
+
+format_answer &lt;- function(x) {
+# CHECK: if the input is a character. 
+if (is.character(x)) {
+# DO THIS: is the input is a character.
+  print(str_c(&quot;The answer is: &quot;, x))
+# CHECK: If the input has been checked and it isn&#39;t a character, check if it&#39;s a number. 
+} else if (is.numeric(x)) {
+# CHECK: If the input is a number check if it&#39;s less than 10. 
+  if (x &lt; 10) {
+# DO THIS: if the number is less than 10.
+    print(x)
+# CHECK: If the number is not less than 10, check if it is greater than 10.
+  } else if (x &gt; 10) {
+# DO THIS: if the number if greater than 10.
+    print(x / 10)
+# DO THIS: If the number is not greater or less than ten (ie. it is 10) do this.
+  } else {
+    print(&quot;Invalid Input&quot;)
+  }
+# DO THIS: if the input is not a number or a character.
+} else {
+  print(&quot;Invalid Input&quot;)
+  }
+}
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG5mb3JtYXRfYW5zd2VyKGlucHV0MSlcbmBgYCJ9 -->
+<pre class="r"><code>
+format_answer(input1)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwiVGhlIGFuc3dlciBpczogNVwiXG4ifQ== -->
+<pre><code>[1] &quot;The answer is: 5&quot;</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZm9ybWF0X2Fuc3dlcihpbnB1dDIpXG5gYGAifQ== -->
+<pre class="r"><code>format_answer(input2)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDlcbiJ9 -->
+<pre><code>[1] 9</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZm9ybWF0X2Fuc3dlcihpbnB1dDMpXG5gYGAifQ== -->
+<pre class="r"><code>format_answer(input3)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDEuMVxuIn0= -->
+<pre><code>[1] 1.1</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZm9ybWF0X2Fuc3dlcihpbnB1dDQpIFxuYGBgIn0= -->
+<pre class="r"><code>format_answer(input4) </code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwiSW52YWxpZCBJbnB1dFwiXG4ifQ== -->
+<pre><code>[1] &quot;Invalid Input&quot;</code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
@@ -2043,11 +2111,52 @@ my_function_1 &lt;- function(a, b) {
 <!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
+</div>
+<div id="q6.-updated-from-review" class="section level3">
+<h3>Q6. UPDATED FROM REVIEW</h3>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubXlfZnVuY3Rpb25fMiA8LSBmdW5jdGlvbihhLCBiKSB7XG4gIFxuICBpZiAoYWxsKGEgPT0gYikpIHsgXG4gICAgICAgIHByaW50KFwiRXhhY3RseSB0aGUgc2FtZVwiKVxuICB9IGVsc2UgaWYgKGFsbChzb3J0KGEpID09IHNvcnQoYikpKSB7XG4gICAgICAgIHByaW50KFwiVGhlIHNhbWVcIilcbiAgfSBlbHNlIHtcbiAgICAgICAgcHJpbnQoXCJEaWZmZXJlbnRcIilcbiAgfVxufSBcbmBgYCJ9 -->
+<pre class="r"><code>my_function_2 &lt;- function(a, b) {
+  
+  if (all(a == b)) { 
+        print(&quot;Exactly the same&quot;)
+  } else if (all(sort(a) == sort(b))) {
+        print(&quot;The same&quot;)
+  } else {
+        print(&quot;Different&quot;)
+  }
+} </code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubXlfZnVuY3Rpb25fMih2ZWN0b3JfMSwgdmVjdG9yXzIpICMgU2hvdWxkIHJldHVybiBcIkV4YWN0bHkgdGhlIHNhbWVcIlxuYGBgIn0= -->
+<pre class="r"><code>my_function_2(vector_1, vector_2) # Should return &quot;Exactly the same&quot;</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwiRXhhY3RseSB0aGUgc2FtZVwiXG4ifQ== -->
+<pre><code>[1] &quot;Exactly the same&quot;</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubXlfZnVuY3Rpb25fMih2ZWN0b3JfMSwgdmVjdG9yXzMpICMgU2hvdWxkIHJldHVybiBcIlRoZSBzYW1lXCJcbmBgYCJ9 -->
+<pre class="r"><code>my_function_2(vector_1, vector_3) # Should return &quot;The same&quot;</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwiVGhlIHNhbWVcIlxuIn0= -->
+<pre><code>[1] &quot;The same&quot;</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubXlfZnVuY3Rpb25fMih2ZWN0b3JfMSwgdmVjdG9yXzQpICMgU2hvdWxkIHJldHVybiBcIkRpZmZlcmVudFwiXG5gYGAifQ== -->
+<pre class="r"><code>my_function_2(vector_1, vector_4) # Should return &quot;Different&quot;</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwiRGlmZmVyZW50XCJcbiJ9 -->
+<pre><code>[1] &quot;Different&quot;</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 </div>
 </div>
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiV2VlayAyIC8gRGF5IDMgLyBIb21ld29yayIKb3V0cHV0OiBodG1sX25vdGVib29rCi0tLQoKIyMgTVZQCgpgYGB7cn0KbGlicmFyeSh0aWR5dmVyc2UpCmBgYAoKCiMjIyBRMS4KRmluZCB0aGUgd2VhdGhlciBmb3JlY2FzdCBmb3IgdGhlIG5leHQgdGhyZWUgZGF5cyBvbmxpbmUuIENyZWF0ZSBhIGxpc3Qgb2YgbGlzdHMgaW4gd2hpY2ggZWFjaCBpbm5lciBsaXN0IHNob3VsZCBiZSBsYWJlbGxlZCB3aXRoIHRoZSBuYW1lIG9mIHRoZSBkYXkgb2YgdGhlIHdlZWsuIEVhY2ggaW5uZXIgbGlzdCBzaG91bGQgY29udGFpbiBuYW1lZCBlbGVtZW50cyB0ZWxsaW5nIHlvdSB0aGUgdGVtcGVyYXR1cmUsIGNoYW5jZSBvZiByYWluIGFuZCB3aW5kIHNwZWVkLgoKYGBge3J9Cgp3ZWF0aGVyIDwtIGxpc3QoCiAgVGh1cnNkYXlfMzAgPSBsaXN0KG1heF90ZW1wID0gMTQsIHJhaW5fYXRfbm9vbiA9IDE2LCB3aW5kX3NwZWVkX2F0X25vb24gPSAxNCksCiAgRnJpZGF5XzAxID0gbGlzdChtYXhfdGVtcCA9IDE0LCByYWluX2F0X25vb24gPSAxMCwgd2luZF9zcGVlZF9hdF9ub29uID0gMTMpLAogIFNhdHVyZGF5XzAyID0gbGlzdChtYXhfdGVtcCA9IDExLCByYWluX2F0X25vb24gPSAyMiwgd2luZF9zcGVlZF9hdF9ub29uID0gMTMpCikKCndlYXRoZXIKCmBgYAoKIyMjIFEyLgpVc2luZyB0aGUgbGlzdCB5b3XigJl2ZSBqdXN0IG1hZGUgZmluZDoKClRoZSBjaGFuY2Ugb2YgcmFpbiB0b21vcnJvdwoKYGBge3J9Cgp3ZWF0aGVyJFRodXJzZGF5XzMwJHJhaW5fYXRfbm9vbgoKYGBgCgpUaGUgd2luZCBzcGVlZCBvbiB0aGUgZGF5IGFmdGVyIHRvbW9ycm93CgpgYGB7cn0KCndlYXRoZXIkRnJpZGF5XzAxJHdpbmRfc3BlZWRfYXRfbm9vbgoKYGBgCgpUaGUgdGVtcGVyYXR1cmUgdG9tb3Jyb3cuCgpgYGB7cn0KCndlYXRoZXIkVGh1cnNkYXlfMzAkbWF4X3RlbXAKCmBgYAoKIyMjIFEzLgpGaW5kIGEgMTQgZGF5IGZvcmVjYXN0IG9ubGluZSBhbmQgY3JlYXRlIGEgbWF0cml4IG9mIHRoZSBmb3JlY2FzdHMgZm9yIHRlbXBlcmF0dXJlLCB3aGVyZSBlYWNoIHdlZWsgaXMgb25lIHJvdyBhbmQgY29sdW1ucyBjb3JyZXNwb25kIHRvIGRheXMuIFlvdSB3aWxsIHdhbnQgdG8gZ2l2ZSBhIG5hbWUgdG8gdGhlIG1hdHJpeCB5b3UgY3JlYXRlLgoKYGBge3J9CgpkYXlzIDwtIGMoIk1vbiIsICJUdWUiLCAiV2VkIiwgIlRodSIsICJGcmkiLCAiU2F0IiwgIlN1biIpCndlZWtfbnVtIDwtIGMoIldlZWsgMSIsICJXZWVrIDIiKQp0ZW1wcyA8LSBjKDE3LCAxOSwgMjAsIDE0LCAxMiwgMTYsIDE3LCAyMSwgNCwgNywgMTAsIDE0LCAxNywgMjApCgp3ZWF0aGVyXzE0X2RheXMgPC0gbWF0cml4KHRlbXBzLCBucm93ID0gMikKCmNvbG5hbWVzKHdlYXRoZXJfMTRfZGF5cykgPC0gZGF5cwpyb3duYW1lcyh3ZWF0aGVyXzE0X2RheXMpIDwtIHdlZWtfbnVtCgp3ZWF0aGVyXzE0X2RheXMKCmBgYAoKIyMjIFE0LgpGcm9tIHRoZSBtYXRyaXggeW91IGp1c3QgbWFkZSBzZWxlY3Q6CgpUaGUgdGhpcmQgZGF5IG9mIHRoZSBzZWNvbmQgd2VlawoKYGBge3J9Cgp3ZWF0aGVyXzE0X2RheXNbMiwgM10KCmBgYAoKVGhlIHdob2xlIHNlY29uZCB3ZWVrCgpgYGB7cn0KCndlYXRoZXJfMTRfZGF5c1syLF0KCmBgYAoKVGhlIGZpcnN0LCB0aGlyZCBhbmQgZmlmdGggZGF5cyBpbiBib3RoIHdlZWtzLgoKYGBge3J9Cgp3ZWF0aGVyXzE0X2RheXNbLCBjKDEsIDMsIDUpXQoKYGBgCgojIyMgUTUuCldyaXRlIGEgZnVuY3Rpb24gdGhhdCBwcmUtYXBwZW5kcyDigJxUaGUgYW5zd2VyIGlzOuKAnSB0byBhbnkgY2hhcmFjdGVyIGlucHV0LCB3aGlsZSBmb3IgbnVtZXJpYyBpbnB1dCwgaXQgZWl0aGVyIGp1c3QgcmV0dXJucyB0aGUgbnVtYmVyIGZvciBudW1iZXJzIGxlc3MgdGhhbiAxMCwgb3IgZGl2aWRlcyB0aGUgbnVtYmVyIGJ5IDEwIGZvciBudW1iZXJzIGdyZWF0ZXIgdGhhbiAxMC4gRm9yIGFueXRoaW5nIGVsc2UgcmV0dXJuIOKAnEludmFsaWQgaW5wdXTigJ0uCgpgYGB7cn0KbXlfZnVuY3Rpb24gPC0gZnVuY3Rpb24oeCkgewogIAogIGlmIChpcy5jaGFyYWN0ZXIoeCkpIHsgCiAgICBzdHJfYygiVGhlIGFuc3dlciBpcyAiLCB4KQogIH0gCiAgZWxzZSBpZiAoaXMubnVtZXJpYyh4KSAmICh4IDwgMTApKSB7CiAgICBwcmludCh4KQogIH0gCiAgZWxzZSBpZiAoaXMubnVtZXJpYyh4KSAmICh4ID4gMTApKSB7CiAgICB4IDwtICB4IC8gMTAKICAgIHByaW50KHgpCiAgfSAKICBlbHNlIHsKICAgIHByaW50KCJJbnZhbGlkIElucHV0IikKICB9Cn0gICAgCiAgCmBgYAoKYGBge3J9Cm15X2Z1bmN0aW9uKCJTdHVhcnQiKSAjIFdvcmtpbmcKbXlfZnVuY3Rpb24oMikgIyBXb3JraW5nCm15X2Z1bmN0aW9uKDQwKSAjIFdvcmtpbmcKbXlfZnVuY3Rpb24oQCkgICMgTm90IFdvcmtpbmcKYGBgCgojIyMgUTYuCldyaXRlIGEgZnVuY3Rpb24gd2hpY2ggY2hlY2tzIGlmIHR3byB2ZWN0b3JzIGhhdmUgdGhlIHNhbWUgZWxlbWVudHMuCgpJZiB0aGV5IGhhdmUgdGhlIHNhbWUgZWxlbWVudHMgaW4gdGhlIHNhbWUgb3JkZXIsIHJldHVybiDigJxFeGFjdGx5IHRoZSBzYW1l4oCdCklmIHRoZXkgaGF2ZSB0aGUgc2FtZSBlbGVtZW50cyBidXQgaW4gYSBkaWZmZXJlbnQgb3JkZXIsIHJldHVybiDigJxUaGUgc2FtZeKAnQpJZiB0aGV5IGRvbuKAmXQgaGF2ZSB0aGUgc2FtZSBlbGVtZW50cywgcmV0dXJuIOKAnERpZmZlcmVudOKAnS4KCmBgYHtyfQoKdmVjdG9yXzEgPC0gYygxLCAyLCAzKQp2ZWN0b3JfMiA8LSBjKDEsIDIsIDMpCnZlY3Rvcl8zIDwtIGMoMywgMiwgMSkKdmVjdG9yXzQgPC0gYyg1LCAxMCwgMTUpCgpgYGAKCmBgYHtyfQoKbXlfZnVuY3Rpb25fMSA8LSBmdW5jdGlvbihhLCBiKSB7CiAgCiAgaWYgKGFsbChhID09IGIpKSB7IAogICAgICAgIHByaW50KCJFeGFjdGx5IHRoZSBzYW1lIikKICB9IGVsc2UgaWYgKGFsbChzb3J0KGEpID09IHNvcnQoYikpKSB7CiAgICAgICAgcHJpbnQoIlRoZSBzYW1lIikKICB9IGVsc2UgaWYgKGFsbChzb3J0KGEpICE9IHNvcnQoYikpKSB7CiAgICAgICAgcHJpbnQoIkRpZmZlcmVudCIpCiAgfQp9ICAgCgpgYGAKCmBgYHtyfQpteV9mdW5jdGlvbl8xKHZlY3Rvcl8xLCB2ZWN0b3JfMikgIyBTaG91bGQgcmV0dXJuICJFeGFjdGx5IHRoZSBzYW1lIgpteV9mdW5jdGlvbl8xKHZlY3Rvcl8xLCB2ZWN0b3JfMykgIyBTaG91bGQgcmV0dXJuICJUaGUgc2FtZSIKbXlfZnVuY3Rpb25fMSh2ZWN0b3JfMSwgdmVjdG9yXzQpICMgU2hvdWxkIHJldHVybiAiRGlmZmVyZW50IgpgYGAKCg==</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiV2VlayAyIC8gRGF5IDMgLyBIb21ld29yayIKb3V0cHV0OiBodG1sX25vdGVib29rCi0tLQoKIyMgTVZQCgpgYGB7cn0KbGlicmFyeSh0aWR5dmVyc2UpCmBgYAoKCiMjIyBRMS4KRmluZCB0aGUgd2VhdGhlciBmb3JlY2FzdCBmb3IgdGhlIG5leHQgdGhyZWUgZGF5cyBvbmxpbmUuIENyZWF0ZSBhIGxpc3Qgb2YgbGlzdHMgaW4gd2hpY2ggZWFjaCBpbm5lciBsaXN0IHNob3VsZCBiZSBsYWJlbGxlZCB3aXRoIHRoZSBuYW1lIG9mIHRoZSBkYXkgb2YgdGhlIHdlZWsuIEVhY2ggaW5uZXIgbGlzdCBzaG91bGQgY29udGFpbiBuYW1lZCBlbGVtZW50cyB0ZWxsaW5nIHlvdSB0aGUgdGVtcGVyYXR1cmUsIGNoYW5jZSBvZiByYWluIGFuZCB3aW5kIHNwZWVkLgoKYGBge3J9Cgp3ZWF0aGVyIDwtIGxpc3QoCiAgVGh1cnNkYXlfMzAgPSBsaXN0KG1heF90ZW1wID0gMTQsIHJhaW5fYXRfbm9vbiA9IDE2LCB3aW5kX3NwZWVkX2F0X25vb24gPSAxNCksCiAgRnJpZGF5XzAxID0gbGlzdChtYXhfdGVtcCA9IDE0LCByYWluX2F0X25vb24gPSAxMCwgd2luZF9zcGVlZF9hdF9ub29uID0gMTMpLAogIFNhdHVyZGF5XzAyID0gbGlzdChtYXhfdGVtcCA9IDExLCByYWluX2F0X25vb24gPSAyMiwgd2luZF9zcGVlZF9hdF9ub29uID0gMTMpCikKCndlYXRoZXIKCmBgYAoKIyMjIFEyLgpVc2luZyB0aGUgbGlzdCB5b3XigJl2ZSBqdXN0IG1hZGUgZmluZDoKClRoZSBjaGFuY2Ugb2YgcmFpbiB0b21vcnJvdwoKYGBge3J9Cgp3ZWF0aGVyJFRodXJzZGF5XzMwJHJhaW5fYXRfbm9vbgoKYGBgCgpUaGUgd2luZCBzcGVlZCBvbiB0aGUgZGF5IGFmdGVyIHRvbW9ycm93CgpgYGB7cn0KCndlYXRoZXIkRnJpZGF5XzAxJHdpbmRfc3BlZWRfYXRfbm9vbgoKYGBgCgpUaGUgdGVtcGVyYXR1cmUgdG9tb3Jyb3cuCgpgYGB7cn0KCndlYXRoZXIkVGh1cnNkYXlfMzAkbWF4X3RlbXAKCmBgYAoKIyMjIFEzLgpGaW5kIGEgMTQgZGF5IGZvcmVjYXN0IG9ubGluZSBhbmQgY3JlYXRlIGEgbWF0cml4IG9mIHRoZSBmb3JlY2FzdHMgZm9yIHRlbXBlcmF0dXJlLCB3aGVyZSBlYWNoIHdlZWsgaXMgb25lIHJvdyBhbmQgY29sdW1ucyBjb3JyZXNwb25kIHRvIGRheXMuIFlvdSB3aWxsIHdhbnQgdG8gZ2l2ZSBhIG5hbWUgdG8gdGhlIG1hdHJpeCB5b3UgY3JlYXRlLgoKYGBge3J9CgpkYXlzIDwtIGMoIk1vbiIsICJUdWUiLCAiV2VkIiwgIlRodSIsICJGcmkiLCAiU2F0IiwgIlN1biIpCndlZWtfbnVtIDwtIGMoIldlZWsgMSIsICJXZWVrIDIiKQp0ZW1wcyA8LSBjKDE3LCAxOSwgMjAsIDE0LCAxMiwgMTYsIDE3LCAyMSwgNCwgNywgMTAsIDE0LCAxNywgMjApCgp3ZWF0aGVyXzE0X2RheXMgPC0gbWF0cml4KHRlbXBzLCBucm93ID0gMikKCmNvbG5hbWVzKHdlYXRoZXJfMTRfZGF5cykgPC0gZGF5cwpyb3duYW1lcyh3ZWF0aGVyXzE0X2RheXMpIDwtIHdlZWtfbnVtCgp3ZWF0aGVyXzE0X2RheXMKCmBgYAoKIyMjIFE0LgpGcm9tIHRoZSBtYXRyaXggeW91IGp1c3QgbWFkZSBzZWxlY3Q6CgpUaGUgdGhpcmQgZGF5IG9mIHRoZSBzZWNvbmQgd2VlawoKYGBge3J9Cgp3ZWF0aGVyXzE0X2RheXNbMiwgM10KCmBgYAoKVGhlIHdob2xlIHNlY29uZCB3ZWVrCgpgYGB7cn0KCndlYXRoZXJfMTRfZGF5c1syLF0KCmBgYAoKVGhlIGZpcnN0LCB0aGlyZCBhbmQgZmlmdGggZGF5cyBpbiBib3RoIHdlZWtzLgoKYGBge3J9Cgp3ZWF0aGVyXzE0X2RheXNbLCBjKDEsIDMsIDUpXQoKYGBgCgojIyMgUTUuCldyaXRlIGEgZnVuY3Rpb24gdGhhdCBwcmUtYXBwZW5kcyDigJxUaGUgYW5zd2VyIGlzOuKAnSB0byBhbnkgY2hhcmFjdGVyIGlucHV0LCB3aGlsZSBmb3IgbnVtZXJpYyBpbnB1dCwgaXQgZWl0aGVyIGp1c3QgcmV0dXJucyB0aGUgbnVtYmVyIGZvciBudW1iZXJzIGxlc3MgdGhhbiAxMCwgb3IgZGl2aWRlcyB0aGUgbnVtYmVyIGJ5IDEwIGZvciBudW1iZXJzIGdyZWF0ZXIgdGhhbiAxMC4gRm9yIGFueXRoaW5nIGVsc2UgcmV0dXJuIOKAnEludmFsaWQgaW5wdXTigJ0uCgpgYGB7cn0KbXlfZnVuY3Rpb24gPC0gZnVuY3Rpb24oeCkgewogIAogIGlmIChpcy5jaGFyYWN0ZXIoeCkpIHsgCiAgICBzdHJfYygiVGhlIGFuc3dlciBpcyAiLCB4KQogIH0gCiAgZWxzZSBpZiAoaXMubnVtZXJpYyh4KSAmICh4IDwgMTApKSB7CiAgICBwcmludCh4KQogIH0gCiAgZWxzZSBpZiAoaXMubnVtZXJpYyh4KSAmICh4ID4gMTApKSB7CiAgICBwcmludCh4IC8gMTApCiAgfSAKICBlbHNlIHsKICAgIHByaW50KCJJbnZhbGlkIElucHV0IikKICB9Cn0gICAgCiAgCmBgYAoKYGBge3J9Cm15X2Z1bmN0aW9uKGlucHV0MSkgIyBXb3JraW5nCm15X2Z1bmN0aW9uKGlucHV0MikgIyBXb3JraW5nCm15X2Z1bmN0aW9uKGlucHV0MykgIyBXb3JraW5nCm15X2Z1bmN0aW9uKGlucHV0NCkgICMgV29ya2luZwpgYGAKCiMjIyBRNS4gVVBEQVRFRCBGUk9NIFJFVklFVwoKYGBge3J9CgppbnB1dDEgPC0gIjUiCmlucHV0MiA8LSA5CmlucHV0MyA8LSAxMQppbnB1dDQgPC0gMTAKCmZvcm1hdF9hbnN3ZXIgPC0gZnVuY3Rpb24oeCkgewojIENIRUNLOiBpZiB0aGUgaW5wdXQgaXMgYSBjaGFyYWN0ZXIuIAppZiAoaXMuY2hhcmFjdGVyKHgpKSB7CiMgRE8gVEhJUzogaXMgdGhlIGlucHV0IGlzIGEgY2hhcmFjdGVyLgogIHByaW50KHN0cl9jKCJUaGUgYW5zd2VyIGlzOiAiLCB4KSkKIyBDSEVDSzogSWYgdGhlIGlucHV0IGhhcyBiZWVuIGNoZWNrZWQgYW5kIGl0IGlzbid0IGEgY2hhcmFjdGVyLCBjaGVjayBpZiBpdCdzIGEgbnVtYmVyLiAKfSBlbHNlIGlmIChpcy5udW1lcmljKHgpKSB7CiMgQ0hFQ0s6IElmIHRoZSBpbnB1dCBpcyBhIG51bWJlciBjaGVjayBpZiBpdCdzIGxlc3MgdGhhbiAxMC4gCiAgaWYgKHggPCAxMCkgewojIERPIFRISVM6IGlmIHRoZSBudW1iZXIgaXMgbGVzcyB0aGFuIDEwLgogICAgcHJpbnQoeCkKIyBDSEVDSzogSWYgdGhlIG51bWJlciBpcyBub3QgbGVzcyB0aGFuIDEwLCBjaGVjayBpZiBpdCBpcyBncmVhdGVyIHRoYW4gMTAuCiAgfSBlbHNlIGlmICh4ID4gMTApIHsKIyBETyBUSElTOiBpZiB0aGUgbnVtYmVyIGlmIGdyZWF0ZXIgdGhhbiAxMC4KICAgIHByaW50KHggLyAxMCkKIyBETyBUSElTOiBJZiB0aGUgbnVtYmVyIGlzIG5vdCBncmVhdGVyIG9yIGxlc3MgdGhhbiB0ZW4gKGllLiBpdCBpcyAxMCkgZG8gdGhpcy4KICB9IGVsc2UgewogICAgcHJpbnQoIkludmFsaWQgSW5wdXQiKQogIH0KIyBETyBUSElTOiBpZiB0aGUgaW5wdXQgaXMgbm90IGEgbnVtYmVyIG9yIGEgY2hhcmFjdGVyLgp9IGVsc2UgewogIHByaW50KCJJbnZhbGlkIElucHV0IikKICB9Cn0KCmBgYAoKYGBge3J9Cgpmb3JtYXRfYW5zd2VyKGlucHV0MSkKZm9ybWF0X2Fuc3dlcihpbnB1dDIpCmZvcm1hdF9hbnN3ZXIoaW5wdXQzKQpmb3JtYXRfYW5zd2VyKGlucHV0NCkgCgpgYGAKCiMjIyBRNi4KV3JpdGUgYSBmdW5jdGlvbiB3aGljaCBjaGVja3MgaWYgdHdvIHZlY3RvcnMgaGF2ZSB0aGUgc2FtZSBlbGVtZW50cy4KCklmIHRoZXkgaGF2ZSB0aGUgc2FtZSBlbGVtZW50cyBpbiB0aGUgc2FtZSBvcmRlciwgcmV0dXJuIOKAnEV4YWN0bHkgdGhlIHNhbWXigJ0KSWYgdGhleSBoYXZlIHRoZSBzYW1lIGVsZW1lbnRzIGJ1dCBpbiBhIGRpZmZlcmVudCBvcmRlciwgcmV0dXJuIOKAnFRoZSBzYW1l4oCdCklmIHRoZXkgZG9u4oCZdCBoYXZlIHRoZSBzYW1lIGVsZW1lbnRzLCByZXR1cm4g4oCcRGlmZmVyZW504oCdLgoKYGBge3J9Cgp2ZWN0b3JfMSA8LSBjKDEsIDIsIDMpCnZlY3Rvcl8yIDwtIGMoMSwgMiwgMykKdmVjdG9yXzMgPC0gYygzLCAyLCAxKQp2ZWN0b3JfNCA8LSBjKDUsIDEwLCAxNSkKCmBgYAoKYGBge3J9CgpteV9mdW5jdGlvbl8xIDwtIGZ1bmN0aW9uKGEsIGIpIHsKICAKICBpZiAoYWxsKGEgPT0gYikpIHsgCiAgICAgICAgcHJpbnQoIkV4YWN0bHkgdGhlIHNhbWUiKQogIH0gZWxzZSBpZiAoYWxsKHNvcnQoYSkgPT0gc29ydChiKSkpIHsKICAgICAgICBwcmludCgiVGhlIHNhbWUiKQogIH0gZWxzZSBpZiAoYWxsKHNvcnQoYSkgIT0gc29ydChiKSkpIHsKICAgICAgICBwcmludCgiRGlmZmVyZW50IikKICB9Cn0gICAKCmBgYAoKYGBge3J9Cm15X2Z1bmN0aW9uXzEodmVjdG9yXzEsIHZlY3Rvcl8yKSAjIFNob3VsZCByZXR1cm4gIkV4YWN0bHkgdGhlIHNhbWUiCm15X2Z1bmN0aW9uXzEodmVjdG9yXzEsIHZlY3Rvcl8zKSAjIFNob3VsZCByZXR1cm4gIlRoZSBzYW1lIgpteV9mdW5jdGlvbl8xKHZlY3Rvcl8xLCB2ZWN0b3JfNCkgIyBTaG91bGQgcmV0dXJuICJEaWZmZXJlbnQiCmBgYAoKIyMjIFE2LiBVUERBVEVEIEZST00gUkVWSUVXCgpgYGB7cn0KIyBJbiB0aGUgYmVsb3cgdmVyc2lvbiwgd2UgdXNlIGFuIGVsc2UgcmF0aGVyIHRoYW4gYSBmaW5hbCBlbHNlIGlmIGxvZ2ljYWwgY2hlY2suCgpteV9mdW5jdGlvbl8yIDwtIGZ1bmN0aW9uKGEsIGIpIHsKICAKICBpZiAoYWxsKGEgPT0gYikpIHsgCiAgICAgICAgcHJpbnQoIkV4YWN0bHkgdGhlIHNhbWUiKQogIH0gZWxzZSBpZiAoYWxsKHNvcnQoYSkgPT0gc29ydChiKSkpIHsKICAgICAgICBwcmludCgiVGhlIHNhbWUiKQogIH0gZWxzZSB7CiAgICAgICAgcHJpbnQoIkRpZmZlcmVudCIpCiAgfQp9IApgYGAKCmBgYHtyfQpteV9mdW5jdGlvbl8yKHZlY3Rvcl8xLCB2ZWN0b3JfMikgIyBTaG91bGQgcmV0dXJuICJFeGFjdGx5IHRoZSBzYW1lIgpteV9mdW5jdGlvbl8yKHZlY3Rvcl8xLCB2ZWN0b3JfMykgIyBTaG91bGQgcmV0dXJuICJUaGUgc2FtZSIKbXlfZnVuY3Rpb25fMih2ZWN0b3JfMSwgdmVjdG9yXzQpICMgU2hvdWxkIHJldHVybiAiRGlmZmVyZW50IgpgYGAKCg==</div>
 
 
 

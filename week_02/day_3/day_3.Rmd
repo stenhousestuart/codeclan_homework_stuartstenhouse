@@ -110,8 +110,7 @@ my_function <- function(x) {
     print(x)
   } 
   else if (is.numeric(x) & (x > 10)) {
-    x <-  x / 10
-    print(x)
+    print(x / 10)
   } 
   else {
     print("Invalid Input")
@@ -121,10 +120,55 @@ my_function <- function(x) {
 ```
 
 ```{r}
-my_function("Stuart") # Working
-my_function(2) # Working
-my_function(40) # Working
-my_function(@)  # Not Working
+my_function(input1) # Working
+my_function(input2) # Working
+my_function(input3) # Working
+my_function(input4)  # Working
+```
+
+### Q5. UPDATED FROM REVIEW
+
+```{r}
+
+input1 <- "5"
+input2 <- 9
+input3 <- 11
+input4 <- 10
+
+format_answer <- function(x) {
+# CHECK: if the input is a character. 
+if (is.character(x)) {
+# DO THIS: is the input is a character.
+  print(str_c("The answer is: ", x))
+# CHECK: If the input has been checked and it isn't a character, check if it's a number. 
+} else if (is.numeric(x)) {
+# CHECK: If the input is a number check if it's less than 10. 
+  if (x < 10) {
+# DO THIS: if the number is less than 10.
+    print(x)
+# CHECK: If the number is not less than 10, check if it is greater than 10.
+  } else if (x > 10) {
+# DO THIS: if the number if greater than 10.
+    print(x / 10)
+# DO THIS: If the number is not greater or less than ten (ie. it is 10) do this.
+  } else {
+    print("Invalid Input")
+  }
+# DO THIS: if the input is not a number or a character.
+} else {
+  print("Invalid Input")
+  }
+}
+
+```
+
+```{r}
+
+format_answer(input1)
+format_answer(input2)
+format_answer(input3)
+format_answer(input4) 
+
 ```
 
 ### Q6.
@@ -162,5 +206,28 @@ my_function_1 <- function(a, b) {
 my_function_1(vector_1, vector_2) # Should return "Exactly the same"
 my_function_1(vector_1, vector_3) # Should return "The same"
 my_function_1(vector_1, vector_4) # Should return "Different"
+```
+
+### Q6. UPDATED FROM REVIEW
+
+```{r}
+# In the below version, we use an else rather than a final else if logical check.
+
+my_function_2 <- function(a, b) {
+  
+  if (all(a == b)) { 
+        print("Exactly the same")
+  } else if (all(sort(a) == sort(b))) {
+        print("The same")
+  } else {
+        print("Different")
+  }
+} 
+```
+
+```{r}
+my_function_2(vector_1, vector_2) # Should return "Exactly the same"
+my_function_2(vector_1, vector_3) # Should return "The same"
+my_function_2(vector_1, vector_4) # Should return "Different"
 ```
 
