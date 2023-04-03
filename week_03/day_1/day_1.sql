@@ -139,3 +139,50 @@ SELECT
 	salary,
 	fte_hours * salary AS effective_yearly_salary
 FROM employees;
+
+/* EXTENSION */
+
+/* Q1 */
+-- The corporation wants to make name badges for a forthcoming conference. Return a column badge_label 
+-- showing employees’ first_name and last_name joined together with their department in the 
+-- following style: ‘Bob Smith - Legal’. Restrict output to only those employees with stored first_name, 
+-- last_name and department.
+
+SELECT
+	concat(first_name, ' ', last_name, ' - ', department) AS badge_label
+FROM employees
+WHERE (first_name IS NOT NULL 
+AND last_name IS NOT NULL
+AND department IS NOT NULL);
+
+/* Q2 */
+-- One of the conference organisers thinks it would be nice to add the year of the employees’ start_date to the 
+-- badge_label to celebrate long-standing colleagues, in the following style ‘Bob Smith - Legal (joined 1998)’. 
+-- Further restrict output to only those employees with a stored start_date.
+
+-- [If you’re really keen - try adding the month as a string: ‘Bob Smith - Legal (joined July 1998)’]
+
+SELECT
+	concat(first_name, ' ', last_name, ' - ', department, 
+	' (joined ', to_char(start_date, 'FMMonth'), ' ', extract(YEAR FROM start_date),')') 
+	AS badge_label
+FROM employees
+WHERE (first_name IS NOT NULL 
+AND last_name IS NOT NULL
+AND department IS NOT NULL
+AND start_date IS NOT NULL);
+
+/* Q3 */
+-- Return the first_name, last_name and salary of all employees together with a new column called salary_class 
+-- with a value 'low' where salary is less than 40,000 and value 'high' where salary is greater than or equal to 40,000.
+
+SELECT
+	first_name,
+	last_name,
+	salary,
+	CASE WHEN salary < 40000 THEN 'Low'
+	WHEN salary > 40000 THEN 'High'
+	ELSE 'Unknown'
+	END AS salary_class
+FROM employees;
+
