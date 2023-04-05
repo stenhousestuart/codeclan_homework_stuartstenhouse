@@ -49,7 +49,7 @@ SELECT
 	pd.local_account_no AS local_account_number,
 	pd.local_sort_code AS local_sort_code,
 	t.name AS team_name
-FROM 
+FROM
 	(employees AS e LEFT JOIN pay_details AS pd ON e.pay_detail_id = pd.id)
 	LEFT JOIN teams AS t ON t.id = e.team_id;
 
@@ -87,11 +87,12 @@ SELECT
 	t.id AS team_id,
 	t.name AS team_name,
 	count(e.id)
-FROM employees AS e LEFT JOIN teams AS t ON e.team_id = t.id
-GROUP BY t.id;
-	
+FROM employees AS e INNER JOIN teams AS t ON e.team_id = t.id
+GROUP BY t.id
+ORDER BY t.id;
+
 /* Q4b */
--- The total_day_charge of a team is defined as the charge_cost of the team multiplied by the number of employees in the team. 
+-- The total_day_charge of a team is defined as the charge_cost of the team multiplied by the number of employees in the team.
 -- Calculate the total_day_charge for each team.
 
 SELECT
@@ -100,7 +101,18 @@ SELECT
 	count(e.id) AS number_of_employees,
 	t.charge_cost AS team_charge_cost,
 	count(e.id) * CAST(t.charge_cost AS int) AS total_day_charge
-FROM employees AS e LEFT JOIN teams AS t ON e.team_id = t.id
+FROM employees AS e INNER JOIN teams AS t ON e.team_id = t.id
+GROUP BY t.id;
+
+----------------- A Cast can also use the below syntax.
+
+SELECT
+	t.id AS team_id,
+	t.name AS team_name,
+	count(e.id) AS number_of_employees,
+	t.charge_cost AS team_charge_cost,
+	count(e.id) * t.charge_cost::int AS total_day_charge
+FROM employees AS e INNER JOIN teams AS t ON e.team_id = t.id
 GROUP BY t.id;
 
 /* Q4c */
@@ -122,16 +134,27 @@ HAVING 5000 < count(e.id) * CAST(t.charge_cost AS int);
 -- How many of the employees serve on one or more committees?
 
 SELECT
-	count(DISTINCT(employees_committees.employee_id))
+	count(DISTINCT(employees_committees.employee_id)) AS num_employees_in_committees
 FROM employees_committees;
 
 /* Q6 */
 -- How many of the employees do not serve on a committee?
 
-SELECT * 
+SELECT
+	COUNT(*) AS num_employees_not_in_committees
 FROM employees LEFT JOIN employees_committees ON employees.id = employees_committees.employee_id
 WHERE employees_committees.employee_id IS NULL;
 
 
+-- And alternative way of doing this would be the below suing sub-queries.
 
-
+SELECT
+-- Counts number of employees.
+  (SELECT COUNT(id) FROM employees) 
+-- Specifies that you want to subtract something from this count.  
+  -
+-- Counts number of distinct employees in employees_committess table
+-- which is what will be distracted from the count of employees.
+  (SELECT COUNT(DISTINCT(employee_id)) FROM employees_committees) 
+-- Sets what you want the result named as.  
+AS num_not_in_committees;
