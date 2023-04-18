@@ -136,7 +136,7 @@ Now the company wants to compare the number of steps that their device counts vs
 ```{r}
 
 qb_device_data_updated <- qb_device_data %>%
-  group_by(id) %>% 
+  group_by(id, device) %>% 
   mutate(rolling_steps_count = cumsum(counts),
          total_time_mins = (hours * 60) + mins)
 
@@ -144,9 +144,11 @@ qb_device_data_updated <- qb_device_data %>%
 
 ```{r}
 
-qb_device_data_updated %>% 
+qb_device_data_updated %>%
+  group_by(id) %>% 
   ggplot(aes(x = total_time_mins, y = rolling_steps_count, colour = id)) +
-  geom_line()
+  geom_line() +
+  facet_grid(id ~ device)
 
 ```
 
@@ -276,3 +278,25 @@ qb_competitors %>%
 ```
 
 ### Q6 Revised
+
+```{r}
+
+qb_device_data_updated %>%
+  group_by(id) %>% 
+  ggplot(aes(x = total_time_mins, y = rolling_steps_count, colour = id)) +
+  geom_line() +
+  theme_light() +
+  facet_grid(id ~ device) +
+  theme(plot.title = element_text(size = 13, face = "bold"),
+        axis.title.x = element_text(size = 8),
+        axis.title.y = element_text(size = 8)) +
+  labs(
+    x = "\nTime (Mins)",
+    y = "Total Steps\n",
+    title = "Steps Tracked by Individual and Device",
+    colour = "Person:"
+  ) +
+  scale_color_manual(values = col_scheme)
+
+```
+
