@@ -151,6 +151,17 @@ qb_device_data_updated %>%
   facet_grid(id ~ device)
 
 ```
+#### Update Following Homework Review
+
+```{r}
+qb_device_data_review <- 
+mutate(qb_device_data, decimal_hour = hours + (mins/60))
+
+ggplot(qb_device_data_review) +
+  aes(x = decimal_hour, y = counts) +
+  geom_line() + 
+  facet_grid(id ~ device)
+```
 
 
 ## Part 2
@@ -199,16 +210,19 @@ qb_revenue_breakdown %>%
 qb_monthly_sales %>%
   filter(cashflow == "Kwikbit Unit 1 Sales") %>% 
   ggplot(aes(x = date, y = amount)) +
-  geom_line(colour = "#F9A472") +
-  theme_light() +
+  geom_line(colour = col_scheme[3], linewidth = 2) +
+  theme_minimal() +
+  scale_y_continuous(labels = scales::dollar) +
   scale_x_date(date_labels = "%b %y", date_breaks = "1 month") +
   labs(
     x = "\nMonth / Year",
     y = "Sales Amount\n",
-    title = "Kwikbit Unit 1 Sales In 2018 & 2019",
-    fill = "Product:"
+    title = "Kwikbit Unit 1 Sales",
+    fill = "Product:",
+    subtitle = "August 2018 - July 2019"
   ) +
   theme(plot.title = element_text(size = 15, face = "bold"),
+        plot.subtitle = element_text(size = 12),
         axis.title.x = element_text(size = 10),
         axis.title.y = element_text(size = 10),
         axis.text.x = element_text(angle = 45, vjust = 0.5))
@@ -220,40 +234,46 @@ qb_monthly_sales %>%
 qb_monthly_sales %>%
   filter(cashflow != "Kwikbit Unit 1 Sales") %>% 
   ggplot(aes(x = date, y = amount, colour = cashflow)) +
-  geom_line() +
+  geom_line(linewidth = 2) +
   scale_x_date(date_labels = "%b %y", date_breaks = "1 month") +
-  theme_light() +
+  scale_y_continuous(labels = scales::dollar) +
+  theme_minimal() +
   theme(plot.title = element_text(size = 15, face = "bold"),
         axis.title.x = element_text(size = 10),
         axis.title.y = element_text(size = 10),
-        legend.title = element_blank(),
         axis.text.x = element_text(angle = 45, vjust = 0.5)) +
   labs(
     x = "\nMonth / Year",
     y = "Amount\n",
-    title = "Total Revenue vs. Costs",
+    title = "QikBit - Revenue and Costs",
+    subtitle = "August 2018 - July 2019",
+    colour = "Cashflow Item:"
   ) +
-  scale_color_manual(values=c("#E89FE9", "#F9A472"))
+  scale_color_manual(values = col_scheme)
 ```
 
 ### Q4 Revised
 
 ```{r}
+
 qb_competitors %>% 
   ggplot(aes(x = year, y = revenue, fill = company)) +
   geom_area() +
-  theme_light() +
-  scale_y_continuous(labels = comma) +
-  theme(plot.title = element_text(size = 13, face = "bold"),
+  theme_minimal() +
+  scale_y_continuous(labels = scales::dollar) +
+  theme(plot.title = element_text(size = 12, face = "bold"),
+        plot.subtitle = element_text(size = 10),
         axis.title.x = element_text(size = 8),
         axis.title.y = element_text(size = 8)) +
   labs(
     x = "\nYear",
     y = "Revenue\n",
     title = "Annual Personal Fitness Tracker Revenue by Company",
+    subtitle = "2015-2019",
     fill = "Company:"
   ) +
   scale_fill_manual(values = col_scheme)
+
 ```
 
 ### Q5 Revised
@@ -263,15 +283,17 @@ qb_competitors %>%
   ggplot(aes(x = year, y = revenue, colour = company)) +
   geom_line() +
   geom_point() +
-  theme_light() +
-  scale_y_continuous(labels = comma) +
+  theme_minimal() +
+  scale_y_continuous(labels = scales::dollar) +
   theme(plot.title = element_text(size = 13, face = "bold"),
+        plot.subtitle = element_text(size = 10),
         axis.title.x = element_text(size = 8),
         axis.title.y = element_text(size = 8)) +
   labs(
     x = "\nYear",
     y = "Revenue\n",
-    title = "Annual Personal Fitness Track Sales by Company",
+    title = "Revenue in the Fitness Tracker Market by Company",
+    subtitle = "2015-2019",
     colour = "Company:"
   ) +
     scale_color_manual(values = col_scheme)
