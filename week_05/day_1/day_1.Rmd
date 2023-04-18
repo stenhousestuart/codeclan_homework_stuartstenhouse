@@ -126,6 +126,7 @@ qb_competitors %>%
     title = "Annual Personal Fitness Track Sales by Company",
     colour = "Company:"
   ) 
+
   
 ```
 
@@ -143,7 +144,7 @@ qb_device_data_updated <- qb_device_data %>%
 
 ```{r}
 
-qb_device_data_updated %>%
+qb_device_data_updated %>% 
   ggplot(aes(x = total_time_mins, y = rolling_steps_count, colour = id)) +
   geom_line()
 
