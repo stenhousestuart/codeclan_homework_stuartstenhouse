@@ -22,6 +22,41 @@ qb_device_data <- CodeClanData::qb_device_data
 
 ```
 
+# NOTES ADDED AFTER REVIEW
+
+```{r}
+
+# Basic Structure
+
+df %>%
+  ggplot() +
+  geom_col() +
+  theme_light() + # Set Base R Theme
+  theme(plot.title = element_text(size = "", face = ""), # Set Title Size & Face
+        plot.subtitle = element_text(size = ""), # Set Subtitle Size & Face
+        legend.title = element_text(size = "", face = ""), # Set Legend Size & Face
+        axis.title.x = element_text(size = ""), # Set x-axis Size & Face
+        axis.title.y = element_text(size = ""), # Set y-axis Size & Face
+        panel.grid = element_line(colour = "", linetype = "")) # Set grid Attributes
+  labs(
+    x = "\n", # Set x-axis Label
+    y = "\n", # Set y-axis Label
+    title = "", # Set Plot Title
+    subtitle = "", # Set Plot Subtitle
+    fill = "")
+
+# Other Useful Styling/Formatting Functions
+scale_y_continuous(labels = scales::dollar_format(prefix = "£")) # Set y-axis to £ format.
+scale_fill_manual(values = "") # Set fill values, either a vector or named.
+scale_x_date(date_labels = "%b %y", date_breaks = "1 month") # Format dates on x-axis.
+axis.text.x = element_text(angle = 45, vjust = 0.5) # Rotate x-axis ticks labels.
+col_scheme <- c("#E89FE9", "#50434F", "#B6A7B5", "#F9A472", "#BD7040") # Define a colour scheme.
+
+# Useful Case Examples
+geom_line(colour = col_scheme[3]) # Set the line to index 3 of colour scheme
+
+```
+
 # MVP
 
 ## Part 1
@@ -163,7 +198,6 @@ ggplot(qb_device_data_review) +
   facet_grid(id ~ device)
 ```
 
-
 ## Part 2
 
 Take the plots that you produced in part one and now polish them by:
@@ -183,23 +217,26 @@ Take the plots that you produced in part one and now polish them by:
 col_scheme <- c("#E89FE9", "#50434F", "#B6A7B5", "#F9A472", "#BD7040")
 ```
 
-
 ```{r}
 
 qb_revenue_breakdown %>% 
   ggplot(aes(x = year, y = revenue, fill = product)) +
   geom_col() +
   theme_light() +
+  theme(plot.title = element_text(size = 15, face = "bold"),
+        plot.subtitle = element_text(size = 12),
+        legend.title = element_text(size = 10, face = "bold"),
+        axis.title.x = element_text(size = 10),
+        axis.title.y = element_text(size = 10),
+        panel.grid = element_line(colour = "grey", linetype = "dashed")) +
   labs(
     x = "\nYear",
     y = "Revenue\n",
     title = "Revenue Sources",
+    subtitle = "2018:2019",
     fill = "Product:"
   ) +
-  theme(plot.title = element_text(size = 15, face = "bold"),
-        axis.title.x = element_text(size = 10),
-        axis.title.y = element_text(size = 10),
-        legend.title = element_text(size = 10)) +
+  scale_y_continuous(labels = scales::dollar_format(prefix = "£")) +
   scale_fill_manual(values = col_scheme)
 
 ```
@@ -212,7 +249,7 @@ qb_monthly_sales %>%
   ggplot(aes(x = date, y = amount)) +
   geom_line(colour = col_scheme[3], linewidth = 2) +
   theme_minimal() +
-  scale_y_continuous(labels = scales::dollar) +
+  scale_y_continuous(labels = scales::dollar_format(prefix = "£")) +
   scale_x_date(date_labels = "%b %y", date_breaks = "1 month") +
   labs(
     x = "\nMonth / Year",
@@ -236,7 +273,7 @@ qb_monthly_sales %>%
   ggplot(aes(x = date, y = amount, colour = cashflow)) +
   geom_line(linewidth = 2) +
   scale_x_date(date_labels = "%b %y", date_breaks = "1 month") +
-  scale_y_continuous(labels = scales::dollar) +
+  scale_y_continuous(labels = scales::dollar_format(prefix = "£")) +
   theme_minimal() +
   theme(plot.title = element_text(size = 15, face = "bold"),
         axis.title.x = element_text(size = 10),
@@ -260,7 +297,7 @@ qb_competitors %>%
   ggplot(aes(x = year, y = revenue, fill = company)) +
   geom_area() +
   theme_minimal() +
-  scale_y_continuous(labels = scales::dollar) +
+  scale_y_continuous(labels = scales::dollar_format(prefix = "£")) +
   theme(plot.title = element_text(size = 12, face = "bold"),
         plot.subtitle = element_text(size = 10),
         axis.title.x = element_text(size = 8),
@@ -284,7 +321,7 @@ qb_competitors %>%
   geom_line() +
   geom_point() +
   theme_minimal() +
-  scale_y_continuous(labels = scales::dollar) +
+  scale_y_continuous(labels = scales::dollar_format(prefix = "£")) +
   theme(plot.title = element_text(size = 13, face = "bold"),
         plot.subtitle = element_text(size = 10),
         axis.title.x = element_text(size = 8),
