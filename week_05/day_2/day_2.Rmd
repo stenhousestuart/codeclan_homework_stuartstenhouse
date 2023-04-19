@@ -56,6 +56,20 @@ most bags.
 Are there differences in backpack weight between sex?
 
 ```{r}
+backpacks %>% 
+  ggplot() +
+  geom_histogram(aes(x = backpack_weight, fill = sex), 
+                 binwidth = 1,
+                 colour = "black") +
+  scale_x_continuous(breaks=0:40) +
+  scale_y_continuous(breaks=0:15) +
+  labs(
+    x = "\n Backpack Weight",
+    y = "\n Count",
+    title = "Backpage Weight Distribution")
+```
+
+```{r}
 
 backpacks %>% 
   group_by(sex) %>% 
@@ -65,11 +79,30 @@ backpacks %>%
   labs(
     x = "\n Sex",
     y = "\n Average Backpack Weight",
-    title = "Average Backpack Weight by Sex")
+    title = "Average Backpack Weight by Sex (All Backpacks)")
 
 ```
+
+```{r}
+
+backpacks %>%
+  filter(backpack_weight != 35) %>% 
+  group_by(sex) %>% 
+  summarise(avg_backpack_weight = mean(backpack_weight)) %>% 
+  ggplot() +
+  geom_col(aes(x = sex, y = avg_backpack_weight, fill = sex), show.legend = FALSE) +
+  labs(
+    x = "\n Sex",
+    y = "\n Average Backpack Weight",
+    title = "Average Backpack Weight by Sex (Excluding Outlier)")
+
+```
+
+
 Summary:
-- The average weight of male backpacks is higher than the average weight of female backpacks.
+- From the histogram it is difficult to identify any significant differences in
+backpack weight between the sex.
+- This is supported when looking at the mean backpack weight between each sex, as although the average weight of male backpacks is higher than the average weight of female backpacks it is not by much. It should also be noted that the male mean of all backpacks will have been impacted by the outlier and we can see this in the plot that excludes this value from the mean calculation where the mean values are slightly closer together.
 
 ## Q4
 
@@ -134,7 +167,7 @@ backpacks %>%
 ```
 
 Summary:
-Just over 30% of students have reported backpain.
+Slightly over 30% of students have reported backpain.
 
 ## Q7
 
@@ -181,9 +214,31 @@ backpacks %>%
   labs(
     x = "\nBody Weight",
     y = "Backpack Weight\n",
-    title = "Relationship Between Backpack Weight, Body Weight, Sex and Backpain")
+    title = "Relationship Between Backpack Weight, Body Weight, Sex and Backpain",
+    subtitle = "With Ratio")
 
 ```
 
+```{r}
+
+facet_names <- as_labeller(c("0" = "No Back Problems", "1" = "Back Problems",
+                             "Male" = "Male", "Female" = "Female"))
+
+backpacks %>%
+  mutate(back_problems = factor(back_problems)) %>% 
+  ggplot() +
+  geom_point(aes(x = body_weight,
+                 y = backpack_weight)) +
+  facet_grid(back_problems ~ sex, labeller = facet_names) +
+  labs(
+    x = "\nBody Weight",
+    y = "Backpack Weight\n",
+    title = "Relationship Between Backpack Weight, Body Weight, Sex and Backpain",
+    subtitle = "Without Ratio")
 
 
+```
+
+Summary:
+From the above plots, it is difficult to identify any strong relationship between
+backpack weight, body weight, sex, reported backpain and ratio.
