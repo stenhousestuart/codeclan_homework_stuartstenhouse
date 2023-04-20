@@ -56,8 +56,10 @@ ui <- fluidPage(
              ),
     ),
     tabPanel(title = "Details",
-             tags$br(),
-             "Created on 19/04/2023 as part of Codeclan Professional Data Analysis Course."
+              tags$br(),
+             "Created April 2023 as part of the ",
+             tags$a(href = "https://www.codeclan.com", "CodeClan"),
+             "Professional Data Analysis course."
     ),
   ),
 )
