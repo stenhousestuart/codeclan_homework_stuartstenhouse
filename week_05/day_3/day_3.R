@@ -8,7 +8,7 @@ sectors <- scottish_exports %>%
   distinct(sector) %>% 
   pull()
 
-col_scheme <- c("#b58900", "black", "seagreen", "#cb4b16", "#2aa198", "#839496")
+col_scheme <- c("#b58900", "black", "seagreen", "#cb4b16", "steelblue1", "#839496")
 
 ui <- fluidPage(
   theme = bs_theme(bootswatch = "solar"),
@@ -20,26 +20,31 @@ ui <- fluidPage(
                sidebarLayout(
                  sidebarPanel(
                    checkboxGroupInput(inputId = "sector_input",
-                                      label = tags$b("Which Sectors Would You Like To View?"),
+                                      label = tags$b("Choose Sector(s):"),
                                       choices = sectors,
                                       selected = sectors
                    ),
+                   helpText(tags$i("NB: Please select a minimum of one sector.")),
+                   tags$hr(),
                    sliderInput(inputId = "first_year_input",
-                               label = tags$i("Start Year"),
+                               label = tags$b("Start Year:"),
                                min = 2002, 
-                               max = 2017, 
+                               max = 2016, 
                                value = 2002,
                                step = 1,
                                sep = "",
-                               dragRange = TRUE
+                               width = "100%",
+                               ticks = FALSE
                    ),
                    sliderInput(inputId = "last_year_input",
-                               label = tags$i("End Year"),
-                               min = 2002, 
-                               max = 2017, 
+                               label = tags$b("End Year:"),
+                               min = 2003, 
+                               max = 2017,
                                value = 2017,
                                step = 1,
-                               sep = ""
+                               sep = "",
+                               width = "100%",
+                               ticks = FALSE
                    ),
                  ),
                  mainPanel(
