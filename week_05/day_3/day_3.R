@@ -12,7 +12,7 @@ col_scheme <- c("#b58900", "black", "seagreen", "#cb4b16", "steelblue1", "#83949
 
 ui <- fluidPage(
   theme = bs_theme(bootswatch = "solar"),
-  titlePanel(tags$b("Compare Scottish Exports by Sector: 2012-2017")),
+  titlePanel(tags$b("Compare Scottish Exports by Sector: 2002-2017")),
   tabsetPanel(
     tabPanel(title = "Data",
              tags$br(),
