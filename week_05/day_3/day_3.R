@@ -15,38 +15,56 @@ ui <- fluidPage(
   titlePanel(tags$b("Compare Scottish Exports by Sector: 2012-2017")),
   tabsetPanel(
     tabPanel(title = "Data",
-  tags$br(),
-  fluidRow(
-    sidebarLayout(
-      sidebarPanel(
-        checkboxGroupInput(inputId = "sector_input",
-                           label = tags$b("Which Sectors Would You Like To View?"),
-                           choices = sectors
-        ),
-      ),
-        mainPanel(
-          
-          plotOutput("sector_plot")
-        
-        ),
-      ),
+             tags$br(),
+             fluidRow(
+               sidebarLayout(
+                 sidebarPanel(
+                   checkboxGroupInput(inputId = "sector_input",
+                                      label = tags$b("Which Sectors Would You Like To View?"),
+                                      choices = sectors,
+                                      selected = sectors
+                   ),
+                   sliderInput(inputId = "first_year_input",
+                               label = tags$i("Start Year"),
+                               min = 2002, 
+                               max = 2017, 
+                               value = 2002,
+                               step = 1,
+                               sep = "",
+                               dragRange = TRUE
+                   ),
+                   sliderInput(inputId = "last_year_input",
+                               label = tags$i("End Year"),
+                               min = 2002, 
+                               max = 2017, 
+                               value = 2017,
+                               step = 1,
+                               sep = ""
+                   ),
+                 ),
+                 mainPanel(
+                   
+                   plotOutput("sector_plot")
+                   
+                 ),
+               ),
+             ),
+    ),
+    tabPanel(title = "Details",
+             tags$br(),
+             "Created on 19/04/2023 as part of Codeclan Professional Data Analysis Course."
     ),
   ),
-  tabPanel(title = "Details",
-           tags$br(),
-           "Created on 19/04/2023 as part of Codeclan Professional Data Analysis Course."
-           )
-),
 )
-
 server <- function(input, output, session) {
   
   output$sector_plot <- renderPlot({
     
     scottish_exports %>%
       filter(sector %in% input$sector_input) %>%
+      filter(year >= input$first_year_input & year <= input$last_year_input) %>% 
       ggplot(aes(x = year, y = exports, colour = sector)) +
-      geom_line(size = 2, alpha = 0.3) +
+      geom_line(size = 2, alpha = 0.5) +
       geom_point(shape = 8) +
       theme_minimal() +
       scale_colour_manual(values = col_scheme) +
