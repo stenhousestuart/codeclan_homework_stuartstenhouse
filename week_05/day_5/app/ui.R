@@ -85,9 +85,15 @@ ui <- fluidPage(
     
     tabPanel(title = "Instructions / Details",
              tags$br(),
-             p("The purpose of this app and the chosen visualisations are to 
-               help people receive personalised game recommendations, from the 
-               'game_sales' data set."),
+             p(tags$b("App & Visualisation Rationale:")),
+             "The purpose of this app and the chosen visualisations are to 
+              help people receive personalised game recommendations, from the 
+              'game_sales' data set. The app has been designed with the aim
+             of allowing users to recieve results which are personalised as much
+             as possible. I have sought to achieve this by allowing user to set 
+             both game criteria and critera relating to their preferred ranking 
+             which in turn impacts the plot returned (eg. either a bar plot or 
+             a scatter plot)",
              
              tags$hr(),
              
