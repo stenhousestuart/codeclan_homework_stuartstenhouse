@@ -50,9 +50,7 @@ ui <- fluidPage(
                    # Rating Scale Input / Radio Button
                    radioButtons(inputId = "rating_scale_input",
                                 label = "Which Rating Would You Like To Use?",
-                                choices = c("Critics Rating" = "critic_score",
-                                            "Users Rating" = "user_score",
-                                            "Sales" = "sales")
+                                choices = rating_options
                                
                    ),
                    

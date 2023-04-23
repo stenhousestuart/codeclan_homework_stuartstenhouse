@@ -13,15 +13,22 @@ server <- function(input, output, session) {
                                               platform == input$console_input,
                                               min_age <= input$age_input) %>%
                                        ggplot() +
-                                       geom_col(aes(x = reorder(name, input$rating_scale_input),
-                                                    y = input$rating_scale_input,
-                                                    fill = name)) +
+                                       geom_col(aes(x = reorder(name, .data[[input$rating_scale_input]]),
+                                                    y = .data[[input$rating_scale_input]]),
+                                                fill = "#ea39b8",
+                                                colour = "#6610f2",
+                                                alpha = 0.5) +
                                        theme_minimal() +
-                                       scale_fill_manual(values = col_scheme) +
-                                       coord_flip() +
                                        labs(
-                                         x = "\n Sales",
-                                         y = "Game Title \n")
+                                         x = "Game Title",
+                                         y = "Sales / Critic Rating / User Rating") +
+                                       theme(
+                                         axis.text = element_text(size = 12),
+                                         axis.title.x = element_text(colour = "grey"),
+                                         axis.title.y = element_text(colour = "grey"),
+                                         panel.grid = element_line(colour = "grey90", linetype = "dashed")
+                                       ) +
+                                       coord_flip()
                                    
                                      })
   

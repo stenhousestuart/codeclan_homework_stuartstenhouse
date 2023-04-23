@@ -34,3 +34,6 @@ consoles <- games_clean %>%
 col_scheme <- c("#ea39b8", "#6610f2", "#32fbe2", "#f1b633", "#e44c55", "#1ba2f6",
                          "#3cf281", "#170229")
 
+rating_options <- c("Critics Rating" = "critic_score",
+                    "Users Rating" = "user_score",
+                    "Sales" = "sales")
