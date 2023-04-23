@@ -12,6 +12,8 @@ server <- function(input, output, session) {
                                               genre == input$genre_input,
                                               platform == input$console_input,
                                               min_age <= input$age_input) %>%
+                                       slice_max(.data[[input$rating_scale_input]], 
+                                                 n = as.numeric(input$number_input)) %>% 
                                        ggplot() +
                                        geom_col(aes(x = reorder(name, .data[[input$rating_scale_input]]),
                                                     y = .data[[input$rating_scale_input]]),

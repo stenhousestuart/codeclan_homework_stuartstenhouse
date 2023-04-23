@@ -54,6 +54,13 @@ ui <- fluidPage(
                                
                    ),
                    
+                   # Rating Scale Input / Radio Button
+                   radioButtons(inputId = "number_input",
+                                label = "View:",
+                                choices = number_options
+                                
+                   ),
+                   
                    # Submit / Update Button
                    actionButton(inputId = "submit_input",
                                 label = "Submit / Update"),
