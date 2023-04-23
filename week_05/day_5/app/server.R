@@ -65,12 +65,12 @@ server <- function(input, output, session) {
   
   output$suggestion_plot <- renderPlot({
     
-    results_count_check <- games_clean %>% 
+    results_count_check <- games_clean %>%
       filter(year_of_release == input$year_input,
              genre == input$genre_input,
              platform == input$console_input,
              min_age <= input$age_input)
-    
+
     validate(
       need(nrow(results_count_check) > 0, "Unfortunately No Games Match Your Current Criteria")
     )
