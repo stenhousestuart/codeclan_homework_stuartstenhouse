@@ -50,7 +50,7 @@ server <- function(input, output, session) {
                                          theme_minimal() +
                                          labs(
                                            x = "Game Title",
-                                           y = "Sales / Critic Rating / User Rating") +
+                                           y = input$rating_scale_input) +
                                          theme(
                                            axis.text = element_text(size = 12),
                                            axis.title.x = element_text(colour = "grey"),

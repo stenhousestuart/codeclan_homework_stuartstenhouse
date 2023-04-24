@@ -27,7 +27,7 @@ consoles <- games_clean %>%
 rating_options <- c("Critics Rating" = "critic_score",
                     "Users Rating" = "user_score",
                     "Sales" = "sales",
-                    "Everything" = "everything")
+                    "All of the Above" = "everything")
 
 number_options <- c("Top 3" = 3,
                     "Top 5" = 5)
