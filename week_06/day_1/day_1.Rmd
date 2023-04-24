@@ -1,0 +1,170 @@
+---
+title: "Week 6 / Day 1"
+output: html_notebook
+---
+
+```{r}
+# Load Libraries
+library(gtools)
+library(tidyverse)
+
+# Source Probability Functions
+source("prob.R")
+
+# Read In Data and Add Logial Type `crew` Column.
+titanic <- read_csv("data/titanic.csv")
+titanic_with_crew <- titanic %>%
+  mutate(crew = if_else(class %in% c("engineering crew", "victualling crew", 
+                                     "restaurant staff", "deck crew"),
+                        TRUE, FALSE))
+```
+
+## MVP
+
+### 1.1
+
+Calculate: prob(survived∣crew)
+
+p(A | B) = p(A AND B) / p(B)
+
+Event A: Survived = yes
+Event B: Crew = TRUE
+
+```{r}
+
+# prob(survived∣crew)
+
+titanic_with_crew %>%
+  # Filters by event B.
+  filter(crew == TRUE) %>% 
+  # Sum where event A occurred and divide by filtered rows.
+  summarise(p = sum(survived == "yes") / n())
+
+```
+
+Calculate: prob(survived∣passenger)
+
+```{r}
+
+# prob(survived∣passenger)
+
+titanic_with_crew %>%
+  # Filters by event B.
+  filter(crew == FALSE) %>% 
+  # Sum where event A occurred and divide by filtered rows.
+  summarise(p = sum(survived == "yes") / n())
+
+```
+
+Compare: prob(survived∣crew) & prob(survived∣passenger) 
+
+prob(survived∣crew) = 0.2370787
+prob(survived∣passenger) = 0.3796507
+
+The above suggests that around 24% of crew survived compared to around 38% of passengers. Therefore, it appears that passengers had a greater probability of surviving than crew members.
+
+### 1.2 / Q1.
+If I roll a six-sided dice once, what is the probability of getting a number less than 5?
+
+Step 1.
+p(event) = n(outcomes in event) / n(total outcomes in sample space)
+
+Step 2.
+p(less than 5) = {1, 2, 3, 4} / {1, 2, 3, 4, 5, 6}
+
+Step 3.
+p(less than 5) = 4 / 6 = 0.67
+
+### 1.2 / Q2.
+How many outcomes are there in the sample space of an experiment in which we toss three dice?
+
+```{r}
+s_three_dice <- rolldie(3)
+
+s_three_dice
+
+# Answer using `rolldie()` function: 216
+```
+
+```{r}
+
+dice_values <- c(1, 2, 3, 4, 5, 6)
+
+possible_permutations <- as_tibble(
+  permutations(n = length(dice_values),
+               r = 3,
+               v = dice_values,
+               repeats.allowed = TRUE))
+
+possible_permutations
+
+# Answer using `permutations()` function: 216
+
+```
+
+Answer: 216
+
+### 1.2 / Q3.
+In an experiment where we roll four dice:
+
+a) How many outcomes are in the event where the total of the four dice equals 5, 6 or 7?
+
+```{r}
+
+s_four_dice <- rolldie(4)
+
+# 1296 permutations
+
+s_four_dice_totals <- s_four_dice %>% 
+  mutate(total = rowSums(.)) %>% 
+  filter(total %in% c(5, 6, 7))
+
+```
+
+Answer: 34
+
+b) What is the probability of this event?
+
+```{r}
+
+# p(event) = n(outcomes in event) / n(total outcomes in sample space)
+
+p <- 34 / 1296
+
+```
+
+Answer: 0.026
+
+c) What assumptions do we apply in answering part ii?
+
+Answer: That the dice are fair and shaken prior to rolling.
+
+### 1.2 / Q4.
+Five chairs are placed in a row in a room, along with five people of differing height. The people sit down randomly on the chairs. What is the probability that they sit in order of decreasing height, left to right?
+
+Step 1:
+p(total) = p(event) + p(compliment of event) 
+
+Step 2:
+p(Decreasing Height Left To Right) = 1 - p(compliment of event)
+
+Step 3:
+p(Decreasing Height Left To Right) = 1 - 0.99
+
+Answer: p(Decreasing Height Left To Right) = 0.01
+
+```{r}
+
+height_values <- c(5, 6, 7, 8, 9)
+
+possible_height_permutations <- as_tibble(
+  permutations(n = length(height_values),
+               r = 5,
+               v = height_values,
+               repeats.allowed = FALSE))
+
+# p(event) = n(outcomes in event) / n(total outcomes in sample space)
+p_compliment <- 119 / 120
+
+```
+
