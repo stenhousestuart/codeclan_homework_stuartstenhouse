@@ -39,7 +39,7 @@ phones %>%
 For your top brand, plot the distribution of phone ratings as a probability density, overlaying a fitted normal distribution. Do you think the normal distribution provides a good model of these ratings?
 
 Interpretation:
-Based on the plot below where a fitted normal distribution has been plotted over our probability density data, I would be leaning towards normal distribution not being a good model of these ratings. This is due to a number of ratings falling outwith the normal distribution at at both the lower and higher ends.
+Based on the plot below where a fitted normal distribution has been plotted over our probability density data, I would be leaning towards normal distribution not being a good model of these ratings as it has a longer left tail and looks as though it may be negatively skewed, 
 
 
 ```{r}
@@ -77,9 +77,11 @@ We can be more quantitative in comparing the distribution of top brand ratings w
 Interpretation: 
 - Considering the proportion of ratings that fall within 1SD, 2SD and 3SD when compared to what we would expect from a normal distribution. A higher proportion of ratings are within 1SD than we would expect; however, a smaller number are within both 2SD and 3SD. This suggests that a larger proportion than expected in a normal distribution is very close to the mean; however, the overall distribution is more widely spread.
 
-- Considering the QQPLot and QQline, this would suggest that this data does not fit a normal distribution.
+- Considering the QQPLot and QQline, this would suggest that this data does not fit a normal distribution. If it were a normal distribution we would expect the plot points to more closely resemble a straight line and more closely align with the QQline.
 
-- Considering the Skewness of the data -0.9349111, it is moderately negatively skewed.
+- Considering the Skewness of the data -0.9349111, it is moderately negatively skewed, which would suggest the data does not fit a normal distribution.
+
+- The Z Rating calculations show that there are 8 observations which could be considered outliers.
 
 What we'd expect for a normal distribution:
 
@@ -137,7 +139,7 @@ Proportion Within 3SD   99.73002 | 97.98489 (0.9798489	* 100)
 ```{r}
 
 qqnorm(samsung_ratings$rating)
-qqline(samsung_ratings$rating, col = "red") 
+qqline(samsung_ratings$rating, col = "red")
 
 ```
 
@@ -156,3 +158,12 @@ samsung_ratings %>%
 
 ```
 
+```{r}
+
+samsung_ratings_scaled <- samsung_ratings %>% 
+  mutate(z_rating = scale(rating))
+
+samsung_ratings_scaled %>% 
+  filter(!between(z_rating, left = -3, right = 3))
+
+```
