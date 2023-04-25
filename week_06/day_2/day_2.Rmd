@@ -1,0 +1,158 @@
+---
+title: "Week 6 / Day 2"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(janitor)
+library(e1071)
+```
+
+## MVP
+
+### Q1.
+Load the data, clean_names() and explore it.
+
+```{r}
+phones <- read_csv("data/20190928-items.csv") %>% clean_names()
+```
+
+```{r}
+glimpse(phones)
+head(phones)
+```
+
+### Q2.
+Find the brand with the highest numbers of phones in the dataset.
+
+```{r}
+
+phones %>%
+  group_by(brand) %>% 
+  summarise(total_brand_reviews = sum(total_reviews)) %>% 
+  arrange(desc(total_brand_reviews))
+
+```
+
+### Q3.
+For your top brand, plot the distribution of phone ratings as a probability density, overlaying a fitted normal distribution. Do you think the normal distribution provides a good model of these ratings?
+
+Interpretation:
+Based on the plot below where a fitted normal distribution has been plotted over our probability density data, I would be leaning towards normal distribution not being a good model of these ratings. This is due to a number of ratings falling outwith the normal distribution at at both the lower and higher ends.
+
+
+```{r}
+
+samsung_rating_stats <- phones %>% 
+  filter(brand == "Samsung") %>% 
+  summarise(num = n(),
+            mean = mean(rating),
+            sd = sd(rating))
+
+samsung_rating_stats
+
+```
+
+```{r}
+
+phones %>%
+  filter(brand == "Samsung") %>% 
+  ggplot() +
+  geom_histogram(aes(x = rating, y = after_stat(density)), colour = "white") +
+  stat_function(
+    fun = dnorm,
+    args = list(
+      mean = samsung_rating_stats$mean,
+      sd = samsung_rating_stats$sd
+    ),
+    colour = "red"
+  )
+
+```
+
+### Q4 & Extension
+We can be more quantitative in comparing the distribution of top brand ratings with a normal distribution. You calculated the mean() and sd() of your distribution in an earlier question. Use these values to calculate the proportions of ratings within one-, two- and three standard deviations of the mean. Compare these proportions with those you expect for a normal distribution.
+
+Interpretation: 
+- Considering the proportion of ratings that fall within 1SD, 2SD and 3SD when compared to what we would expect from a normal distribution. A higher proportion of ratings are within 1SD than we would expect; however, a smaller number are within both 2SD and 3SD. This suggests that a larger proportion than expected in a normal distribution is very close to the mean; however, the overall distribution is more widely spread.
+
+- Considering the QQPLot and QQline, this would suggest that this data does not fit a normal distribution.
+
+- Considering the Skewness of the data -0.9349111, it is moderately negatively skewed.
+
+What we'd expect for a normal distribution:
+
+```{r}
+
+100 * (pnorm(q = 1) - pnorm(q = -1))
+100 * (pnorm(q = 2) - pnorm(q = -2))
+100 * (pnorm(q = 3) - pnorm(q = -3))
+
+```
+
+For Samsung data:
+
+```{r}
+
+samsung_ratings <- phones %>% 
+  filter(brand == "Samsung")
+
+# Proportion Within 1 SD
+
+samsung_ratings %>% 
+  filter(rating >= samsung_rating_stats$mean - samsung_rating_stats$sd) %>%
+  filter(rating <= samsung_rating_stats$mean + samsung_rating_stats$sd) %>%
+  summarise(prop_within_1sd = n() / nrow(samsung_ratings))
+
+```
+
+```{r}
+
+# Proportion Within 2 SD
+
+samsung_ratings %>% 
+  filter(rating >= samsung_rating_stats$mean - (2 * samsung_rating_stats$sd)) %>%
+  filter(rating <= samsung_rating_stats$mean + (2 * samsung_rating_stats$sd)) %>%
+  summarise(prop_within_2sd = n() / nrow(samsung_ratings))
+
+```
+
+```{r}
+
+# Proportion Within 3 SD
+
+samsung_ratings %>% 
+  filter(rating >= samsung_rating_stats$mean - (3 * samsung_rating_stats$sd)) %>%
+  filter(rating <= samsung_rating_stats$mean + (3 * samsung_rating_stats$sd)) %>%
+  summarise(prop_within_3sd = n() / nrow(samsung_ratings))
+
+```
+
+                        Expected | Samsung Data    
+Proportion Within 1SD   68.26895 | 79.34509 (0.7934509	* 100)
+Proportion Within 2SD   95.44997 | 91.93955 (0.9193955	* 100)
+Proportion Within 3SD   99.73002 | 97.98489 (0.9798489	* 100)
+
+```{r}
+
+qqnorm(samsung_ratings$rating)
+qqline(samsung_ratings$rating, col = "red") 
+
+```
+
+```{r}
+
+samsung_ratings %>% 
+  ggplot() +
+  geom_boxplot(aes(x = rating))
+
+```
+
+```{r}
+
+samsung_ratings %>% 
+  summarise(skewness = skewness(rating, type = 1))
+
+```
+
