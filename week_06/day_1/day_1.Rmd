@@ -151,6 +151,8 @@ p(Decreasing Height Left To Right) = 1 - p(compliment of event)
 Step 3:
 p(Decreasing Height Left To Right) = 1 - 0.99
 
+** Initial Answer **
+
 Answer: p(Decreasing Height Left To Right) = 0.01
 
 ```{r}
@@ -167,4 +169,24 @@ possible_height_permutations <- as_tibble(
 p_compliment <- 119 / 120
 
 ```
+
+** Updated Following Homework Review **
+
+```{r}
+
+height_values <- c(5, 6, 7, 8, 9)
+
+possible_height_permutations <- as_tibble(
+  permutations(n = length(height_values),
+               r = 5,
+               v = height_values,
+               repeats.allowed = FALSE))
+
+# p(compliment) = 1 - n(total outcomes that are not our desired outcome)
+p_compliment <- 1 / 120
+p_compliment 
+
+```
+
+Answer: p(Decreasing Height Left To Right) = 0.0083
 
