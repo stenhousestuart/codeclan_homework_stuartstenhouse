@@ -1,0 +1,124 @@
+---
+title: "Week 6, Day 3"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(janitor)
+library(infer)
+```
+
+## MVP
+
+### Q1.
+Load the data again, clean_names(), and re-familiarise yourself with it.
+
+```{r}
+
+ames <- read_csv("data/ames.csv") %>% clean_names()
+
+```
+
+```{r}
+
+glimpse(ames)
+
+```
+
+### Q2.
+Investigate the distribution of lot_area. Is the distribution roughly normal? If not, what problems do you find?
+
+The distribution is not roughly normal as there is a significant peak and there also look to be right-sided outliers suggesting it is positively skewed.
+
+```{r}
+
+ames %>% 
+  ggplot() +
+  geom_histogram(aes(x = lot_area), bins = 27)
+
+```
+
+### Q3.
+Compute and visualise a bootstrap sampling distribution for the mean(lot_area) of the sold houses.
+
+```{r}
+
+ames_infer_resample_2930 <- ames %>%
+  specify(response = lot_area) %>%
+  generate(reps = 1000, type = "bootstrap") %>%
+  calculate(stat = "mean")
+
+ames_infer_resample_2930
+
+```
+
+```{r}
+
+ames_infer_resample_2930 %>% 
+  ggplot() +
+  geom_histogram(aes(x = stat), bins = 25)
+
+```
+
+### Q4.
+Use your bootstrap distribution to calculate a 95% CI for mean(lot_area), and visualise it on the distribution.
+
+```{r}
+infer_ci_95 <- ames_infer_resample_2930 %>%
+  get_confidence_interval(level = 0.95, type = "percentile")
+
+infer_ci_95
+```
+
+```{r}
+
+ames_infer_resample_2930 %>%
+  visualise(bins = 25) +
+  shade_confidence_interval(endpoints = infer_ci_95)
+
+```
+
+### Q5.
+You would like to know the mean(lot_area) of the sold houses with higher confidence. Calculate the 99% CI for this variable (you can re-use your bootstrap distribution from above). Is it narrower or broader than the 95% CI? Does that make sense?
+
+It is broader than 95%CI as we need to allow for more possible values in order to increase our confidence.
+
+```{r}
+
+infer_ci_99 <- ames_infer_resample_2930 %>%
+  get_confidence_interval(level = 0.99, type = "percentile")
+
+infer_ci_99
+
+```
+
+```{r}
+
+ames_infer_resample_2930 %>%
+  visualise(bins = 25) +
+  shade_confidence_interval(endpoints = infer_ci_99)
+
+```
+
+### Q6.
+Calculate the point estimate of the mean(lot_area)
+
+The point estimate of the mean(lot_area) is 10153.5. In this case if we take our original data `ames` to be the population and calculate the mean(lot_area) we get a value of 10147.92. Here we can see that although these values are slightly different, our point estimate would have fallen within our 95% CI.
+
+```{r}
+
+mean_infer <- ames_infer_resample_2930 %>% 
+  summarise(mean = mean(stat))
+
+mean_infer
+
+```
+
+```{r}
+
+ames %>% 
+  summarise(mean = mean(lot_area))
+
+```
+
