@@ -23,18 +23,18 @@ glimpse(msleep)
 ### Q2.
 Jabberwockies sleep for around 7 hours a night, on average. Perform an appropriate statistical test to determine whether the mean sleep_total in the sampled population of animal types differs from the typical value for jabberwockies.
 
-
 #### Step 1 / Define
 Test: One Sample Mean Test
-Question: Is there a statistically significant difference between the typical average sleep time of Jabberwockies (said to be 7 hours per night) and the average sleep time of the animals in the sample?
+
+Question: Is there a statistically significant difference between the mean total sleep time of Jabberwockies (said to be 7 hours per night) and the mean total sleep time of the animals in the sample?
 
 Hypothesis (Text): 
-H0: mean_sleep_total - 7 = 0
-H1: mean_sleep_total - 7 != 0
+H0: sample_mean_sleep_total = 7
+H1: sample_mean_sleep_total != 7
 
 Hypothesis (Mathmatecal Notation):
-H0: $\mu$ - 7 = 0
-H1: $\mu$ - 7 $\neq$ 0
+H0: $\mu$ == 7
+H1: $\mu$ $\neq$ 7
 
 Method for Generating Null Distribution: Bootstrap
 
@@ -42,51 +42,55 @@ Significance Level: 0.05
 
 #### Step 2. Calculate Observed Statistic
 
-For this test our observed statistic will be the mean `sleep_total` for all observations in our sample.
+The observed statistic will be the mean `sleep_total` for all observations in our sample.
 
 ```{r}
-observed_statistic_q1 <- msleep %>%
+observed_statistic_q2 <- msleep %>%
   summarise(mean_sleep_total = mean(sleep_total))
 
-observed_statistic_q1
+observed_statistic_q2
 ```
 
 #### Step 3 / Create Null Distribution
 
-Now we will create our Null distribution - creating a distribution where H0 is true.
+Now we will create our Null distribution - creating a distribution where H0 is true (eg. the mean `sleep_total` is 7, the same as Jabberwockies).
 
 ```{r}
-null_distribution_q1 <- msleep %>%
+null_distribution_q2 <- msleep %>%
   specify(response = sleep_total) %>%
   hypothesize(null = "point", mu = 7) %>%
-  generate(reps = 10000, type = "bootstrap") %>%
+  generate(reps = 50000, type = "bootstrap") %>%
   calculate(stat = "mean")
 
-null_distribution_q1
+null_distribution_q2
 ```
 
 #### Step 4 / Visualise Observed Statistic on NULL Distribution
 
-We now want to visualise our observed statistic on our Null distribution to get a sense for how extreme it may be, if H0 was to be true. We set the disrection argument to `both` here as our question is only considered with whether there is a difference and not if the difference is positive or negative.
+Now we to visualise our observed statistic on our Null distribution to get a sense for how extreme it may be, if H0 was to be true. We set the direction argument to `both`  as our question is only interested in with whether there is a difference and not if the difference is positive or negative.
 
 In the output we can already see that our observed stat appears to be pretty extreme and therefore unlikely to occur if H0 was true.
 
 ```{r}
-null_distribution_q1 %>%
+null_distribution_q2 %>%
   visualise(bins = 30) +
-  shade_p_value(obs_stat = observed_statistic_q1$mean_sleep_total,
+  shade_p_value(obs_stat = observed_statistic_q2,
                 direction = "both")
 ```
 
 #### Step 5 / Calculate P Value
 
 ```{r}
-p_value <- null_distribution_q1 %>%
-  get_p_value(obs_stat = observed_statistic_q1$mean_sleep_total, 
+p_value <- null_distribution_q2 %>%
+  get_p_value(obs_stat = observed_statistic_q2, 
               direction = "both")
 ```
 
-In this instance the p-value is returned as 0 which is lower than our set significane level of 0.05. This means that the probability of our observed statistic occuring if H0 were true is low. We therefor reject the H0, meaning that there is a statistically significant difference in the mean sleep_total of the sampled population when compared to the stated typical mean _sleep total of jabberwockies (7 hours).
+In this instance the p-value is returned as 0 which is lower than our set significance level of 0.05. We therefor reject H0 which stated that there was no significant difference between the mean `sleep_total` between Jabberwockies and the animals in our sample.
+
+The p-value is the probability of calculating the observed statistic, or one more extreme, if H0 is true. Therefor, in this instance a p-value of 0 tells us that there is an extremely low probabability of the observed statistic, or one more extreme, being calculated if H0 is true. Therefor, based on statistical significance, there is strong evidence for rejecting H0 and suggesting that there is a statistically significant difference in the mean `sleep_total` of Jabberwockies and the animals in our sample.
+
+NB - In this question after reading the warning message about reporting a p-value of zero and reading the documentation, I did try increasing the number of replicates in my generate; however, I was still unable to calculate a different p-value. 
 
 ### Q3.
 Perform an appropriate statistical test to determine whether omnivores sleep for significantly longer than herbivores, on average.
@@ -96,11 +100,11 @@ Test: Two Sample Mean Test (Independent)
 Question: Perform an appropriate statistical test to determine whether omnivores sleep for significantly longer than herbivores, on average.
 
 Hypothesis (Text): 
-H0: omnivore_mean_sleep_total - herbivore_mean_sleep_total = 0
+H0: omnivore_mean_sleep_total - herbivore_mean_sleep_total == 0
 H1: omnivore_mean_sleep_total - herbivore_mean_sleep_total > 0
 
 Hypothesis (Mathmatecal Notation):
-H0: $\mu{1}$ - $\mu{2}$ = 0
+H0: $\mu{1}$ - $\mu{2}$ == 0
 H1: $\mu{1}$ - $\mu{2}$ > 0
 
 Method for Generating Null Distribution: Permute
@@ -113,56 +117,58 @@ First we will filter our sample to only contain Omnivores and Herbivores since t
 
 ```{r}
 
-msleep_filtered_q2 <- msleep %>% 
+msleep_filtered_q3 <- msleep %>% 
   filter(vore %in% c("omni", "herbi"))
 
-msleep_filtered_q2
+msleep_filtered_q3
 
 ```
 
-Next we will calculate our observed stat, which is the difference in average sleep between Omnivores and Herbivores from our sample.
+Next I will calculate our observed stat, which is the difference in average sleep between Omnivores and Herbivores from our sample.
 
 ```{r}
-observed_stat_q2 <- msleep_filtered_q2 %>% 
+observed_stat_q3 <- msleep_filtered_q3 %>% 
   specify(response = sleep_total, explanatory = vore) %>%
   calculate(stat = "diff in means", order = c("omni", "herbi"))
 
-observed_stat_q2
+observed_stat_q3
 ```
 
 #### Step 3 / Create Null Distribution
 
-Next we create our Null distribution - which is to create a distribution where the is no difference in the average sleep_total between Omnivores and Herbivores.
+Next we create our Null distribution - which is to create a distribution where there is no difference in the mean sleep_total between Omnivores and Herbivores.
 
 ```{r}
-null_distribution_q2 <- msleep_filtered_q2 %>% 
+null_distribution_q3 <- msleep_filtered_q3 %>% 
   specify(response = sleep_total, explanatory = vore) %>%
   hypothesize(null = "independence") %>%
   generate(reps = 1000, type = "permute") %>% 
   calculate(stat = "diff in means", order = c("omni", "herbi"))
 
-null_distribution_q2
+null_distribution_q3
 
 ```
 
 #### Step 4 / Visualise Observed Statistic on Null Distribution
 
 ```{r}
-null_distribution_q2 %>%
+null_distribution_q3 %>%
   visualise() +
-  shade_p_value(obs_stat = observed_stat_q2, direction = "right")
+  shade_p_value(obs_stat = observed_stat_q3, direction = "right")
 ```
 
 #### Step 5 / Calculate P Value
 
 ```{r}
-p_value <- null_distribution_q2 %>%
-  get_p_value(obs_stat = observed_stat_q2, direction = "right")
+p_value <- null_distribution_q3 %>%
+  get_p_value(obs_stat = observed_stat_q3, direction = "right")
 
 p_value
 ```
 
-In this instance the p-value is returned as 0.115 which is higher than our set significance level of 0.05. We therefor fail to reject the H0, meaning that we cannot say with reasonable confidence that Omnioveres sleep significantly longer on average than Herbivores.
+In this instance the p-value is returned as 0.121 which is higher than our set significance level of 0.05. We therefor fail to reject the H0 which stated that there was no difference between the mean sleep_total of Omnivores and Herbivores.
+
+The p-value is the probability of calculating the observed statistic, or one more extreme, if H0 is true. Therefor, in this instance a p-value of 0.121 tells us that there is a 12% probability of the observed statistic, or one more extreme, being calculated if H0 is true. Therefore, based on statistical significance, there is weak evidence for rejecting H0 and suggesting that Omnivores sleep significantly longer than Herbivores.
 
 ### Q4.
 Perform an appropriate statistical test to determine whether the proportion of domesticated animal types in the population of animal types is greater than 5%.
@@ -186,21 +192,21 @@ Significance Level: 0.05
 #### Step 2. Calculate Observed Statistic
 
 ```{r}
-observed_stat_q3 <- msleep %>%
+observed_stat_q4 <- msleep %>%
   group_by(conservation) %>%
   summarise(proportion = n()/nrow(msleep)) %>%
   filter(conservation == "domesticated")
 
-observed_stat_q3
+observed_stat_q4
 ```
 
 #### Step 3 / Create Null Distribution
 
-Next we will create an `is_domesticated` variable which will contain the values, "Domesticated" or "Not Domesticated". This will create a categorical variable with only two possible answers which is needed to generate an appropriate Null distribution.
+Next we will create an `is_domesticated` variable which will contain the value, "Domesticated" or "Not Domesticated". This will create a categorical variable with only two possible answers which is needed to generate an appropriate Null distribution.
 
 ```{r}
 
-# Here I have decided to drop any observations where the `conservation` value is missing (eg. NA). An alternative approach would be to conisder these as not domesticated as otherwise "domesticated" would have been entered. However, rather than make this assumption, I have decided to drop these observations.
+# Here I have decided to drop any observations where the `conservation` value is missing (eg. NA). An alternative approach would be to consider these as not domesticated as otherwise "domesticated" would have been entered. However, rather than make this assumption, I have decided to drop these observations.
 
 msleep_tidy <- msleep %>% 
   drop_na(conservation)
@@ -213,34 +219,36 @@ msleep_tidy <- msleep_tidy %>%
 
 # Finally, I create a Null distribution from this data.
 
-null_distribution_q3 <- msleep_tidy %>%
+null_distribution_q4 <- msleep_tidy %>%
   specify(response = is_domesticated, success = "domesticated") %>%
   hypothesize(null = "point", p = 0.05) %>%
   generate(reps = 5000, type = "draw") %>%
   calculate(stat = "prop")
 
-null_distribution_q3
+null_distribution_q4
 
 ```
 
 #### Step 4 / Visualise Observed Statistic on Null Distribution
 
 ```{r}
-null_distribution_q3 %>%
+null_distribution_q4 %>%
   visualise() +
-  shade_p_value(obs_stat = observed_stat_q3$proportion, direction = "right")
+  shade_p_value(obs_stat = observed_stat_q4$proportion, direction = "right")
 ```
 
 #### Step 5 / Calculate P Value
 
 ```{r}
-p_value <- null_distribution_q3 %>%
-  get_p_value(observed_stat_q3$proportion, direction = "right")
+p_value <- null_distribution_q4 %>%
+  get_p_value(observed_stat_q4$proportion, direction = "right")
 
 p_value
 ```
 
-In this instance the p-value is returned as 0.186 which is lower than our set significance level of 0.05. We can therefore reject H0 and favour of H1. 
+In this instance the p-value is returned as 0.021 which is lower than our set significance level of 0.05. We therefor reject H0 which stated that the proportion of domesticated animal types in the population of animal types was 5%.
+
+The p-value is the probability of calculating the observed statistic, or one more extreme, if H0 is true. Therefor, in this instance a p-value of 0.021 tells us that there is a 2.1% probability of the observed statistic, or one more extreme, being calculated if H0 is true. Therefore, based on statistical significance, there is strong evidence for rejecting H0 and suggesting that that the proportion of domesticated animal types in the population of animal types is not 5%. 
 
 ## 1.2 & 1.3
 
@@ -253,7 +261,7 @@ Hypothesis (Text):
 H0: Percentage of people who know of the coffee shop == 40
 H1: Percentage of people who know of the coffee shop > 40
 
-Hypothesis (Mathmatecal Notation):
+Hypothesis (Mathematical Notation):
 H0: $\pi$ == 40
 H1: $\pi$ > 40
 
@@ -262,7 +270,9 @@ Method for Generating Null Distribution: Draw
 Results: Significance level: 0.05, calculated p-value: 0.07
 
 Interpretation: 
-The p-value calculated is 0.07 which is higher than the significance level set of 0.05. This means that we fail to reject H0. This means that we cannot reliably say that the proportion of people who know about the coffee shop is greater than 40%.
+In this instance the p-value is returned as 0.07 which is higher than our set significance level of 0.05. We therefor fail to reject the H0 which stated that the proportion of people in the town who know about the coffee shop is 40%.
+
+The p-value is the probability of calculating the observed statistic, or one more extreme, if H0 is true. Therefor, in this instance a p-value of 0.07 tells us that there is a 7% probability of the observed statistic, or one more extreme, being calculated if H0. Therefore, based on statistical significance, there is weak evidence for rejecting H0 and suggesting that the proportion of people in the town who know about the coffee shop is not 40%.
 
 ### Q2.
 You work for a website design company and have performed an A/B test on the position of a banner on a website promoting a particular item.
@@ -278,7 +288,7 @@ H1: CTR Group B - CTR Group A > 0
 
 Hypothesis (Mathmatecal Notation):
 
-H0: $\pi{2}$ - $\pi{1}$  == 0
+H0: $\pi{2}$ - $\pi{1}$ == 0
 H1: $\pi{2}$ - $\pi{1}$ > 0
 
 Method for Generating Null Distribution: Permute
@@ -286,7 +296,9 @@ Method for Generating Null Distribution: Permute
 Results: Significance level: 0.01, p-value: 0.006
 
 Interpretation:
-The p-value calculated is 0.006 which is lower than the significance level set of 0.01. This means that we reject H0 in favour of H1 that the CTR was greater amongst group B who were displayed the banner at the top.
+In this instance the p-value is returned as 0.006 which is lower than our set significance level of 0.05. We therefor reject H0 which stated that there was no difference in the CTR between the two groups.
+
+The p-value is the probability of calculating the observed statistic, or one more extreme, if H0 is true. Therefor, in this instance a p-value of 0.006 tells us that there is a 0.6% probability of the observed statistic, or one more extreme, being calculated if H0 is true. Therefore, based on statistical significance, there is strong evidence for rejecting H0 and suggesting that the CTR is the same in both groups.
 
 ### Q3.
 You work as an analyst for a car manufacturing company - they have specific standards they must meet for standards and regulation purposes. You have been asked to check the quality control of the manufacture of a particular car part. You have been given data on a sample of 200 parts produced over the period of a week (the sampled parts were pulled at random from the production line and measured: the factory produced a lot more than 200 parts that week). The specification of the part stipulates a width of 145mm, and the manufacturing process is said to have ‘drifted’ if the mean width of parts differs significantly from 145mm. You want to use the sampled measurements to test whether the process overall has drifted.
@@ -308,4 +320,6 @@ Method for Generating Null Distribution: Bootstrap
 Results: Significance level: 0.05, p-value: 0.55
 
 Interpretation:
-The p-value calculated is 0.55 which is higher than the significance level set of 0.05. This means that we fail to reject H0, meaning that we cannot reliably say that there is any significant difference between part width and the required 145mm. 
+In this instance the p-value is returned as 0.55 which is higher than our set significance level of 0.05. We therefor fail to reject the H0 which stated that there was no difference between the mean width of the part and the stipulated width of 145mm.
+
+The p-value is the probability of calculating the observed statistic, or one more extreme, if H0 is true. Therefor, in this instance a p-value of 0.55 tells us that there is a 55% probability of the observed statistic, or one more extreme, being calculated if H0 is true. Therefore, based on statistical significance, there is weak evidence for rejecting H0 and suggesting that there is a significant difference.
