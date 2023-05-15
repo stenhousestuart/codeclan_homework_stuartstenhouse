@@ -1,0 +1,308 @@
+---
+title: "NHS Borders / Cancer Incidence"
+output: html_notebook
+---
+
+# Wrangling and Cleaning
+
+## Load Libraries
+
+```{r}
+library(tidyverse)
+library(janitor)
+```
+
+## Read In Data
+
+```{r}
+cancer_incidence <- read_csv("data/cancer_incidence_by_health_board.csv") %>% 
+  clean_names()
+
+five_year_summary <- read_csv("data/five_year_cancer_incidence_summary.csv") %>% 
+  clean_names()
+
+geography_codes <- read_csv("data/geography_codes_and_labels.csv") %>%
+  clean_names()
+```
+
+## Filter for NHS Borders Data
+
+```{r}
+
+cancer_incidence_borders <- cancer_incidence %>% 
+  filter(hb == "S08000016")
+
+five_year_summary_borders <- five_year_summary %>% 
+  filter(hb == "S08000016")
+
+```
+
+## Remove Unnecessary Objects
+
+```{r}
+rm(cancer_incidence)
+rm(five_year_summary)
+rm(geography_codes)
+```
+
+The simplest death rate is the so-called crude death rate, which is calculated by dividing
+the total number of deaths by the total population. However, because the probability of
+death tends to increase with age, changes in the age-distribution of the population could
+have an effect on any apparent trend shown by the crude death rate. Age-standardised death rates that are comparable over time and between different countries can be calculated using the European Standard Population (ESP). This is a theoretical population, defined as having a particular distribution by age, which does not
+change. (https://www.nrscotland.gov.uk/files//statistics/age-standardised-death-rates-esp/2017/age-standardised-17-methodology.pdf)
+
+For our analysis, we will consider number of incidences & EASR.
+
+EASR: Allows for comparing of trends over time, discounting age variations.
+Incidences: Raw count of incidences.
+
+## Select Only Necessary Rows
+
+```{r}
+cancer_incidence_borders <- cancer_incidence_borders %>% 
+  select(id, hb, cancer_site, sex, year, incidences_all_ages, 
+         crude_rate, crude_rate_lower95pc_confidence_interval,
+         crude_rate_upper95pc_confidence_interval, easr,
+         easr_lower95pc_confidence_interval, easr_upper95pc_confidence_interval)
+```
+
+```{r}
+
+five_year_summary_borders_incidence <- five_year_summary_borders %>%
+  select(id, hb, cancer_site, sex, year | starts_with("incidences"))
+
+five_year_summary_borders_incidence_ratio <- five_year_summary_borders %>%
+  select(id, hb, cancer_site, sex, year | starts_with("incidence_rate"))
+
+five_year_summary_borders_easr <- five_year_summary_borders %>%
+  select(id, hb, cancer_site, sex, year, easr, easr_lower95pc_confidence_interval, easr_upper95pc_confidence_interval)
+
+```
+
+## Pivot To Long Format
+
+```{r}
+five_year_summary_borders_incidence_long <- five_year_summary_borders_incidence %>%
+  pivot_longer(
+    cols = incidences_age_under5:incidences_age85and_over,
+    names_to = "age",
+    values_to = "incidences"
+  ) %>% 
+  select(-incidences_all_ages) %>% 
+  mutate(age = str_remove(age, "incidences_age"),
+         age = str_replace_all(age, "_", ""))
+         
+```
+
+## Remove Unnecessary Objects
+
+```{r}
+rm(five_year_summary_borders_incidence)
+```
+
+
+# Exploratory Analysis
+
+## All Cancer Incidence Trend / Over Time
+
+```{r}
+
+cancer_incidence_borders %>% 
+  filter(cancer_site == "All cancer types",
+         sex == "All") %>% 
+  ggplot() +
+  geom_line(aes(x = year, y = incidences_all_ages)) +
+  geom_point(aes(x = year, y = incidences_all_ages)) +
+  scale_x_continuous(breaks = c(1997:2021)) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5)) +
+  ylim(0, 1000)
+
+```
+
+## All Cancer Incidence Trend / Over Time, By Sex
+
+```{r}
+
+cancer_incidence_borders %>% 
+  filter(cancer_site == "All cancer types",
+         sex != "All") %>% 
+  ggplot(aes(x = year, y = incidences_all_ages, colour = sex)) +
+  geom_line() +
+  geom_point() +
+  scale_x_continuous(breaks = c(1997:2021)) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5)) +
+  ylim(0, 1000)
+
+```
+
+## Cancer Types Incidence Trend / Over Time
+
+```{r}
+
+# Note that here we have filtered to only include those with more than 50 incidences.
+
+cancer_incidence_borders %>% 
+  filter(cancer_site != "All cancer types",
+         sex == "All",
+         incidences_all_ages > 50) %>%
+  ggplot() +
+  geom_line(aes(x = year, y = incidences_all_ages, 
+                 colour = cancer_site))
+
+```
+
+## Cancer Types Incidence Trend / Over Time, By Sex
+
+```{r}
+
+cancer_incidence_borders %>% 
+  filter(cancer_site != "All cancer types",
+         incidences_all_ages > 50,
+         sex != "All") %>%
+  group_by(year, cancer_site, sex) %>% 
+  ggplot() +
+  geom_line(aes(x = year, y = incidences_all_ages, 
+                 colour = cancer_site)) +
+  facet_wrap(~sex) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5))
+
+```
+
+--------
+
+## All Cancer Trend / Over Time, By Age
+five_year_summary_borders_incidences
+
+```{r}
+five_year_summary_borders_incidence_long %>% 
+  filter(sex == "All",
+         cancer_site != "All cancer types",
+         incidences > 50) %>% 
+  ggplot() +
+  geom_col(aes(x = age, y = incidences, 
+               fill = cancer_site), position = "dodge") +
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5))
+
+```
+
+## All Cancer Trend / Over Time, By Age & By Sex
+
+```{r}
+five_year_summary_borders_incidence_long %>% 
+  filter(sex != "All",
+         cancer_site != "All cancer types",
+         incidences > 50) %>% 
+  ggplot() +
+  geom_col(aes(x = age, y = incidences, 
+               fill = cancer_site), position = "dodge") +
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5)) +
+  facet_wrap(~sex)
+```
+
+
+## Cancer Types Trend / Over Time, By Age
+five_year_summary_borders
+
+## Cancer Types Trend / Over Time, By Age & By Sex
+five_year_summary_borders
+
+# Breast Cancer / Females / 50+
+
+No invites to breast screenings between 30 March 2020 and 3 August 2020 due to the COVID-19 pandemic, resulting in reduction in the overall number of women screened. / https://www.publichealthscotland.scot/media/12843/2022-04-26_breast_screening_report.pdf
+
+```{r}
+
+all_cancer_female <- cancer_incidence_borders %>% 
+  filter(cancer_site == "All cancer types",
+         sex == "Females")
+
+breast_cancer_female <- cancer_incidence_borders %>% 
+  filter(cancer_site == "Breast",
+         sex == "Females")
+  
+ggplot() +
+  geom_line(data = all_cancer_female,
+            aes(x = year, y = incidences_all_ages),
+            colour = "red") +
+  geom_point(data = all_cancer_female,
+            aes(x = year, y = incidences_all_ages),
+            colour = "red") +
+  geom_line(data = breast_cancer_female,
+            aes(x = year, y = incidences_all_ages),
+            colour = "blue") +
+  geom_point(data = breast_cancer_female,
+            aes(x = year, y = incidences_all_ages),
+            colour = "blue") +
+  scale_x_continuous(breaks = c(1997:2021)) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5)) +
+  ylim(0, 500) +
+  labs(
+    x = "\n Year",
+    y = "Incidences\n",
+    title = "All Female Cancer Incidences vs. Female Breast Cancer Incidences",
+    subtitle = "NHS Borders: 1997-2021") +
+  geom_segment(aes(x = 2017, y = 30, xend = 2020, yend = 90),
+                  arrow = arrow(length = unit(0.5, "cm"))) +
+  annotate(geom="text", x=2017, y = 25, label="Screening Paused",
+              color="black")
+```
+
+```{r}
+breast_cancer_female %>% 
+  ggplot() +
+  geom_line(aes(x = year, y = crude_rate),
+            colour = "red") +
+  geom_point(aes(x = year, y = crude_rate),
+            colour = "red") +
+  geom_line(aes(x = year, y = easr),
+            colour = "blue") +
+  geom_point(aes(x = year, y = easr),
+            colour = "blue") +
+  geom_ribbon(aes(x = year, 
+                  y = crude_rate, 
+                  ymin = crude_rate_lower95pc_confidence_interval, 
+                  ymax = crude_rate_upper95pc_confidence_interval),
+              alpha = 0.2,
+              fill = "red") +
+  geom_ribbon(aes(x = year, 
+                  y = easr, 
+                  ymin = easr_lower95pc_confidence_interval, 
+                  ymax = easr_upper95pc_confidence_interval),
+              alpha = 0.2,
+              fill = "blue") +
+  scale_x_continuous(breaks = c(1997:2021)) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5)) +
+  labs(
+    x = "\n Year",
+    y = "Incidences\n",
+    title = "Female Breast Cancer Crude Rate vs. EASR",
+    subtitle = "NHS Borders: 1997-2021")
+```
+
+```{r}
+five_year_summary_borders_incidence_long %>%
+  filter(cancer_site == "Breast",
+         sex == "Females") %>%
+  mutate(age = factor(age, levels = c("under5", "5to9",
+                                      "10to14", "15to19",
+                                      "20to24", "25to29",
+                                      "30to34", "35to39",
+                                      "40to44", "45to49",
+                                      "50to54", "55to59",
+                                      "60to64", "65to69",
+                                      "70to74", "75to79",
+                                      "80to84", "85andover"))) %>%
+  ggplot() +
+  geom_col(aes(x = age, y = incidences)) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5)) +
+  labs(
+    x = "\n Age",
+    y = "Incidences\n",
+    title = "Total Female Breast Cancer Incidences by Age",
+    subtitle = "NHS Borders: 2017-2021")
+  
+  
+```
+
+
+# Non-melanoma Skin Cancer (+Basal Cell & Squamous) / Males / 70+
