@@ -1,0 +1,250 @@
+---
+title: "NHS Borders"
+output:
+  html_document:
+    theme: flatly
+    toc: true
+    toc_float: true
+  pdf_document: default
+---
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+
+# Load Libraries
+library(tidyverse)
+library(janitor)
+
+# Read In Data
+
+cancer_incidence <- read_csv("data/cancer_incidence_by_health_board.csv") %>% 
+  clean_names()
+
+five_year_summary <- read_csv("data/five_year_cancer_incidence_summary.csv") %>% 
+  clean_names()
+
+geography_codes <- read_csv("data/geography_codes_and_labels.csv") %>%
+  clean_names()
+```
+
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+
+# Clean Data
+
+```
+
+
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+
+# Breast Cancer Objects
+
+all_cancer_female <- cancer_incidence_borders %>% 
+  filter(cancer_site == "All cancer types",
+         sex == "Females")
+
+breast_cancer_female <- cancer_incidence_borders %>% 
+  filter(cancer_site == "Breast",
+         sex == "Females")
+
+scotland_breast_cancer_female <- cancer_incidence %>% 
+  filter(cancer_site == "Breast",
+         sex == "Females",
+         hb %in% c("S08000024", "S08000017"))
+```
+
+
+# Introduction
+
+The 5 forms of cancer with the highest number of incidences in NHS Borders between 1997-2021 can be seen below. These figures are across all ages and genders.
+
+```{r}
+cancer_incidence_borders %>% 
+  filter(cancer_site != "All cancer types",
+         sex == "All") %>% 
+  group_by(cancer_site) %>% 
+  summarise(total_incidences = sum(incidences_all_ages)) %>% 
+  arrange(desc(total_incidences)) %>% 
+  head(5)
+```
+
+For the purposes of clarity, this report is not intended to be and is by no means an exhaustive overview of cancer incidences and rates within NHS Borders and Scotland as a whole. This report will focus on discussion around 2 cancer types that show the largest incidence numbers in NHS Borders between 1997 and 2021.
+
+1.Non-melanoma skin cancer.
+
+2.Breast cancer.
+
+# Breast Cancer
+
+## Context
+
+Among females, breast cancer has the highest number of incidences. The 3 forms of cancers with the most instances among females are shown below.
+
+```{r}
+cancer_incidence_borders %>% 
+  filter(cancer_site != "All cancer types",
+         sex == "Females") %>% 
+  group_by(cancer_site) %>% 
+  summarise(total_incidences = sum(incidences_all_ages)) %>% 
+  arrange(desc(total_incidences)) %>% 
+  head(5)
+```
+
+It also has the highest mean crude rate among females.
+
+```{r}
+cancer_incidence_borders %>% 
+  filter(cancer_site != "All cancer types",
+         sex == "Females") %>% 
+  group_by(cancer_site) %>% 
+  summarise(mean_crude_rate = mean(crude_rate)) %>% 
+  arrange(desc(mean_crude_rate)) %>% 
+  head(5)
+```
+
+```{r}
+cancer_incidence_borders %>% 
+  filter(cancer_site != "All cancer types",
+         sex == "Females") %>% 
+  group_by(cancer_site) %>% 
+  summarise(mean_easr = mean(easr)) %>% 
+  arrange(desc(mean_easr)) %>% 
+  head(5)
+```
+And the highest EASR.
+
+## Visualisations
+
+### *[fig. 1]*
+
+**What does this visualisation tell us?**
+
+- That breast cancer incidences in females are driving the trend of all cancer type incidences.
+- That there appears to be a historic trend in breast cancer incidences where they peak approximately every 3 years.
+- That this trend is less evident in 2020 when we may have expected it, although there is an increase in 2021.
+
+**Why might there be a historic 3 year trend?**
+
+Women who meet screening criteria are invited for breast screening once every 3 years.
+https://www.nss.nhs.scot/specialist-healthcare/screening-programmes/breast-screening/
+
+**Why might we not see the same peak in 2020 as we may have expected?**
+
+Due to the COVID-19 pandemic, no invites to breast screenings were sent between 30 March 2020 and 3 August 2020.
+
+https://www.publichealthscotland.scot/media/12843/2022-04-26_breast_screening_report.pdf
+
+```{r}
+
+ggplot() +
+  geom_line(data = all_cancer_female,
+            aes(x = year, y = incidences_all_ages),
+            colour = "red") +
+  geom_point(data = all_cancer_female,
+            aes(x = year, y = incidences_all_ages),
+            colour = "red") +
+  geom_line(data = breast_cancer_female,
+            aes(x = year, y = incidences_all_ages),
+            colour = "blue") +
+  geom_point(data = breast_cancer_female,
+            aes(x = year, y = incidences_all_ages),
+            colour = "blue") +
+  scale_x_continuous(breaks = c(1997:2021)) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5)) +
+  ylim(0, 500) +
+  labs(
+    x = "\n Year",
+    y = "Incidences\n",
+    title = "All Female Cancer Incidences vs. Female Breast Cancer Incidences",
+    subtitle = "NHS Borders: 1997-2021") +
+  geom_vline(xintercept = 2020, linetype = "dashed")
+
+```
+
+### *[fig. 2]*
+
+**What does this visualisation tell us?**
+
+- The majority of breast cancer incidences in females appear to be between those aged between 50 and 79.
+
+**Why might these age groups see increased incidence numbers?**
+
+- Currently only women between the ages of 50 and 70 are routinely screened. 
+https://www.nss.nhs.scot/specialist-healthcare/screening-programmes/breast-screening/
+
+```{r}
+five_year_summary_borders_incidence_long %>%
+  filter(cancer_site == "Breast",
+         sex == "Females") %>%
+  mutate(age = factor(age, levels = c("under5", "5to9",
+                                      "10to14", "15to19",
+                                      "20to24", "25to29",
+                                      "30to34", "35to39",
+                                      "40to44", "45to49",
+                                      "50to54", "55to59",
+                                      "60to64", "65to69",
+                                      "70to74", "75to79",
+                                      "80to84", "85andover"))) %>%
+  ggplot() +
+  geom_col(aes(x = age, y = incidences)) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5)) +
+  labs(
+    x = "\n Age",
+    y = "Incidences\n",
+    title = "Total Female Breast Cancer Incidences by Age",
+    subtitle = "NHS Borders: 2017-2021")
+```
+
+## Conclusions / Recommendations
+
+- We could reasonably expect to see a continued increase in breast cancer incidences in 2022 as screening appointments catch up following the disruption caused by the COVID-19 pandemic. Resources should be allocated accordingly.
+
+- Consideration should be given, informed by evidence, of expanding screening criteria to lower age groups to determine whether or not the current distribution of incidences by age is due to current screening criteria.
+
+# Non-melanoma Skin Cancer
+
+## Context
+
+Among males, Non-melanoma skin cancer has the highest number of incidences. The 5 forms of cancers with the most instances among females are shown below.
+
+*NB - Basal cell carcinoma of the skin & Squamous cell carcinoma of the skin are also forms of Non-melanoma skin cancer*
+
+```{r}
+cancer_incidence_borders %>% 
+  filter(cancer_site != "All cancer types",
+         sex == "Male") %>% 
+  group_by(cancer_site) %>% 
+  summarise(total_incidences = sum(incidences_all_ages)) %>% 
+  arrange(desc(total_incidences)) %>% 
+  head(5)
+```
+
+It also has the highest mean crude rate.
+
+```{r}
+cancer_incidence_borders %>% 
+  filter(cancer_site != "All cancer types",
+         sex == "Male") %>% 
+  group_by(cancer_site) %>% 
+  summarise(mean_crude_rate = mean(crude_rate)) %>% 
+  arrange(desc(mean_crude_rate)) %>% 
+  head(5)
+```
+
+And the highest mean EASR.
+
+```{r}
+cancer_incidence_borders %>% 
+  filter(cancer_site != "All cancer types",
+         sex == "Male") %>% 
+  group_by(cancer_site) %>% 
+  summarise(mean_easr = mean(easr)) %>% 
+  arrange(desc(mean_easr)) %>% 
+  head(5)
+```
+
+## Visualisations
+
+## Conclusions / Recommendations
+
+
