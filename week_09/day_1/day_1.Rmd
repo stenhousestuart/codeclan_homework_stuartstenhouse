@@ -347,3 +347,89 @@ five_year_summary_borders_ratio_long %>%
 ```
 
 # Non-melanoma Skin Cancer (+Basal Cell & Squamous) / Males / 70+
+
+```{r}
+
+# Make Population Projection Tibbles
+
+population_projection <- tibble(
+  year = c(2021, 2022, 2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030, 2031, 2032, 2033, 2034,
+           2035, 2036, 2037, 2038, 2039, 2040, 2041, 2021, 2022, 2023, 2024, 2025, 2026, 2027, 2028,
+           2029, 2030, 2031, 2032, 2033, 2034,
+           2035, 2036, 2037, 2038, 2039, 2040, 2041), 
+  sex = c("male", "male", "male", "male", "male", "male", "male", "male", "male", "male", "male", "male", "male", "male", "male", "male", "male", "male", "male", "male", "male", "female", "female", "female", "female", "female", "female", "female", "female", "female", "female", "female", "female", "female", "female", "female", "female", "female", "female", "female", "female", "female"),
+  pop = c(9692,	9870,	10062,	10233,	10429,	10623,	10834,	11026,	11244,	11466,	11705,	11946,	12201,	12401,	12653,	12855,	13016,	13188,	13326,	13422,	13487, 29889,	30183,	30360,	30508,	30635,	30703,	30674,	30629,	30619,	30682,	30721,	30798,	30865,	30887,	30913,	30943,	30944,	30959,	31001,	31080,	31148))
+```
+
+```{r}
+population_projection %>%
+  filter(sex == "male") %>% 
+  mutate(year = factor(year, 
+                       levels = c(2021, 2022, 2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030, 2031,
+                                  2032, 2033, 2034, 2035, 2036, 2037, 2038, 2039, 2040, 2041))) %>% 
+  ggplot() +
+  geom_col(aes(x = year, y = pop)) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5)) +
+    labs(
+    x = "\n Year",
+    y = "Projected Population\n",
+    title = "Projected NHS Borders Population: Males 70+",
+    subtitle = "2021:2041")
+```
+```{r}
+population_projection %>%
+  filter(sex == "female") %>% 
+  mutate(year = factor(year, 
+                       levels = c(2021, 2022, 2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030, 2031,
+                                  2032, 2033, 2034, 2035, 2036, 2037, 2038, 2039, 2040, 2041))) %>% 
+  ggplot() +
+  geom_col(aes(x = year, y = pop)) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5)) +
+    labs(
+    x = "\n Year",
+    y = "Projected Population\n",
+    title = "Projected NHS Borders Population: Males 70+",
+    subtitle = "2021:2041")
+```
+
+
+
+```{r}
+ggplot() +
+  geom_line(data = all_cancer_female,
+            aes(x = year, y = incidences_all_ages),
+            colour = all_cancer,
+            size = 1.5) +
+  geom_point(data = all_cancer_female,
+            aes(x = year, y = incidences_all_ages),
+            colour = all_cancer,
+            size = 2) +
+  geom_line(data = breast_cancer_female,
+            aes(x = year, y = incidences_all_ages),
+            colour = breast_cancer,
+            size = 1.5) +
+  geom_point(data = breast_cancer_female,
+            aes(x = year, y = incidences_all_ages),
+            colour = breast_cancer,
+            size = 2) +
+  scale_color_manual(name = "Colours",
+                     breaks=c("all_cancer", "breast_cancer"),
+                     values=c("all_cancer" = "#092869", "breast_cancer" = "#0391BF"),
+                     labels = c("All Cancer Types", "Breast Cancer")) +
+  scale_x_continuous(breaks = c(1997:2021)) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5)) +
+  ylim(0, 500) +
+  labs(
+    x = "\n Year",
+    y = "Incidences\n",
+    title = "All Female Cancer Incidences vs. Female Breast Cancer Incidences",
+    subtitle = "NHS Borders: 1997-2021") +
+  geom_vline(xintercept = 2020, linetype = "dashed") +
+  annotate("text", x = 2021, y = 500, label = "COVID-19", size = 2, face = "bold", colour = "red") +
+  theme(plot.title = element_text(size = 13, face = "bold"),
+        plot.subtitle = element_text(size = 10),
+        panel.background = element_rect(fill = "white"),
+        panel.grid = element_line(colour = "grey90", 
+                                  linetype = "dashed"))
+```
+
