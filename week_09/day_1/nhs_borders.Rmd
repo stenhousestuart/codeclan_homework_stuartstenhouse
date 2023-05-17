@@ -75,7 +75,7 @@ five_year_summary_long <- five_year_summary_borders_incidence %>%
 
 ```
 
-# Introduction
+# Overview
 
 Across all ages and genders, the 3 forms of cancer with the highest number of incidences in NHS Borders between 1997-2021 are:
 
@@ -83,7 +83,9 @@ Across all ages and genders, the 3 forms of cancer with the highest number of in
 
 1. Non-melanoma skin cancer /	6174
 2. Basal cell carcinoma of the skin	/ 4049
-3. Breast	/ 2614	
+3. Breast	/ 2614
+
+> *NB - Basal cell carcinoma of the skin is form form of Non-melanoma skin cancer (NHS Inform, 2022)*
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
 # cancer_incidence_borders %>% 
@@ -184,7 +186,8 @@ cancer_incidence_borders %>%
             size = 1.5) +
   geom_point(aes(x = year, y = incidences_all_ages, colour = cancer_site),
             size = 2) +
-  scale_x_continuous(breaks = c(1997:2021)) +
+  scale_x_continuous(breaks = c(1997, 1999, 2001, 2003, 2005, 2007, 2009,
+                                2011, 2013, 2015, 2017, 2019, 2021)) +
   scale_colour_manual(values = colour_scheme, labels = c("All Combined", "Breast")) +
   theme(axis.text.x = element_text(angle = 45, vjust = 0.5)) +
   ylim(0, 500) +
@@ -250,13 +253,21 @@ five_year_summary_long %>%
 
 - Currently only women between the ages of 50 and 70 are routinely screened *(NHS National Services Scotland, 2022)*.
 
-**NHS Borders Population Projections**
+<style>
+div.yellow {background-color:#fcf8c0; border-radius: 5px; padding: 20px;}
+
+</style>
+<div class = "yellow">
+
+**NHS Borders Population Projections:**
 
 Females 50+ 2021: 29889
 
 Females 50+ 2041: 31148 (4.21225% increase)
 
 *(National Records of Scotland, 2023)*
+
+</div>
 
 ***
 
@@ -275,50 +286,75 @@ div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 
 </div>
 
-
-
 ***
 
 # Non-melanoma Skin Cancer
 
 ## Context
 
-Among males, Non-melanoma skin cancer has the highest number of incidences. The 5 forms of cancers with the most instances among females are shown below.
 
-*NB - Basal cell carcinoma of the skin & Squamous cell carcinoma of the skin are also forms of Non-melanoma skin cancer*
+In the available date, among males in NHS Borders, Non-melanoma skin cancer has the highest number of incidences, highest mean crude rate and highest mean European age-standardised rate (EASR).
 
-```{r, echo = FALSE}
-cancer_incidence_borders %>% 
-  filter(cancer_site != "All cancer types",
-         sex == "Male") %>% 
-  group_by(cancer_site) %>% 
-  summarise(total_incidences = sum(incidences_all_ages)) %>% 
-  arrange(desc(total_incidences)) %>% 
-  head(5)
+<div class = "row">
+  
+<div class = "col-md-6">
+**Cancer Site / Incidences**
+
+**1.** Non-melanoma skin cancer	/ 3655			
+**2.** Prostate	/ 2253				
+**3.** Basal cell carcinoma of the skin	/ 2167	
+</div>
+  
+<div class = "col-md-6">
+**Cancer Site / Mean Crude Rate**
+
+**1.** Non-melanoma skin cancer	268.35849			
+**2.** Prostate	165.64352			
+**3.** Basal cell carcinoma of the skin	159.20984		
+</div>
+
+</div>
+
+<div class = "row">  
+<div class = "col-md-6">
+**Cancer Site / Mean EASR**
+
+**1.** Non-melanoma skin cancer	/ 274.87691			
+**2.** Prostate	/ 161.63449				
+**3.** Basal cell carcinoma of the skin	/ 156.12175				
+</div>
+
+
+</div>
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+# cancer_incidence_borders %>% 
+#   filter(cancer_site != "All cancer types",
+#          sex == "Male") %>% 
+#   group_by(cancer_site) %>% 
+#   summarise(total_incidences = sum(incidences_all_ages)) %>% 
+#   arrange(desc(total_incidences)) %>% 
+#   head(5)
 ```
 
-It also has the highest mean crude rate.
-
-```{r, echo = FALSE}
-cancer_incidence_borders %>% 
-  filter(cancer_site != "All cancer types",
-         sex == "Male") %>% 
-  group_by(cancer_site) %>% 
-  summarise(mean_crude_rate = mean(crude_rate)) %>% 
-  arrange(desc(mean_crude_rate)) %>% 
-  head(5)
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+# cancer_incidence_borders %>% 
+#   filter(cancer_site != "All cancer types",
+#          sex == "Male") %>% 
+#   group_by(cancer_site) %>% 
+#   summarise(mean_crude_rate = mean(crude_rate)) %>% 
+#   arrange(desc(mean_crude_rate)) %>% 
+#   head(5)
 ```
 
-And the highest European age-standardised rate (EASR).
-
-```{r, echo = FALSE}
-cancer_incidence_borders %>% 
-  filter(cancer_site != "All cancer types",
-         sex == "Male") %>% 
-  group_by(cancer_site) %>% 
-  summarise(mean_easr = mean(easr)) %>% 
-  arrange(desc(mean_easr)) %>% 
-  head(5)
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+# cancer_incidence_borders %>% 
+#   # filter(cancer_site != "All cancer types",
+#   #        sex == "Male") %>% 
+#   # group_by(cancer_site) %>% 
+#   # summarise(mean_easr = mean(easr)) %>% 
+#   # arrange(desc(mean_easr)) %>% 
+#   # head(5)
 ```
 
 ***
@@ -340,7 +376,8 @@ cancer_incidence_borders %>%
             size = 1.5) +
   geom_point(aes(x = year, y = incidences_all_ages, colour = cancer_site),
             size = 2) +
-  scale_x_continuous(breaks = c(1997:2021)) +
+  scale_x_continuous(breaks = c(1997, 1999, 2001, 2003, 2005, 2007, 2009,
+                                2011, 2013, 2015, 2017, 2019, 2021)) +
   scale_colour_manual(values = colour_scheme, labels = c("All Combined", "Non-melanoma Skin Cancer")) +
   theme(axis.text.x = element_text(angle = 45, vjust = 0.5)) +
   ylim(0, 500) +
@@ -384,7 +421,7 @@ five_year_summary_long %>%
     y = "Incidences\n",
     title = "Total Male Non-melanoma Skin Cancer Incidences by Age",
     subtitle = "NHS Borders: 2017-2021") +
-  theme(plot.title = element_text(size = 13, face = "bold"),
+  theme(plot.title = element_text(size = 15, face = "bold"),
         plot.subtitle = element_text(size = 10),
         panel.background = element_rect(fill = "white"),
         panel.grid = element_line(colour = "grey90", 
@@ -395,13 +432,21 @@ five_year_summary_long %>%
 
 - The majority of Non-melanoma skin cancer Incidences in males appear to be between those aged between 70 and 85+.
 
-**NHS Borders Population Projections**
+<style>
+div.yellow {background-color:#fcf8c0; border-radius: 5px; padding: 20px;}
+
+</style>
+<div class = "yellow">
+
+**NHS Borders Population Projections:**
 
 Males 70+ 2021: 9692
 
 Males 70+ 2041: 13487 (39.156% increase)
 
 *(National Records of Scotland, 2023)*
+
+</div>
 
 ***
 
@@ -419,6 +464,9 @@ div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 ***
 
 # References
+- NHS Inform, 2022:
+https://www.nhsinform.scot/illnesses-and-conditions/cancer/cancer-types-in-adults/skin-cancer-non-melanoma
+
 - NHS National Services Scotland, 2022: https://www.nss.nhs.scot/specialist-healthcare/screening-programmes/breast-screening/
 
 - National Records of Scotland, 2023:
