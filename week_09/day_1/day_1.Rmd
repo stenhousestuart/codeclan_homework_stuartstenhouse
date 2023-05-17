@@ -395,35 +395,60 @@ population_projection %>%
 
 
 ```{r}
-ggplot() +
-  geom_line(data = all_cancer_female,
-            aes(x = year, y = incidences_all_ages),
-            colour = all_cancer,
+
+cancer_incidence_borders %>% 
+  filter(sex == "Male",
+         cancer_site %in% c("All cancer types", "Non-melanoma skin cancer")) %>% 
+  ggplot() +
+  geom_line(aes(x = year, y = incidences_all_ages, colour = cancer_site),
             size = 1.5) +
-  geom_point(data = all_cancer_female,
-            aes(x = year, y = incidences_all_ages),
-            colour = all_cancer,
+  geom_point(aes(x = year, y = incidences_all_ages, colour = cancer_site),
             size = 2) +
-  geom_line(data = breast_cancer_female,
-            aes(x = year, y = incidences_all_ages),
-            colour = breast_cancer,
+  geom_line(aes(x = year, y = incidences_all_ages, colour = cancer_site),
             size = 1.5) +
-  geom_point(data = breast_cancer_female,
-            aes(x = year, y = incidences_all_ages),
-            colour = breast_cancer,
+  geom_point(aes(x = year, y = incidences_all_ages, colour = cancer_site),
             size = 2) +
-  scale_color_manual(name = "Colours",
-                     breaks=c("all_cancer", "breast_cancer"),
-                     values=c("all_cancer" = "#092869", "breast_cancer" = "#0391BF"),
-                     labels = c("All Cancer Types", "Breast Cancer")) +
   scale_x_continuous(breaks = c(1997:2021)) +
+  scale_colour_manual(values = colour_scheme, labels = c("All Combined", "Non-melanoma Skin Cancer")) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5)) +
+  ylim(0, 500) +
+  labs(
+    x = "\n Year",
+    y = "Incidences\n",
+    title = "All Male Cancer Incidences vs. Male Non-melanoma Skin Cancer Incidences",
+    subtitle = "NHS Borders: 1997-2021",
+    colour = "Cancer Type:") +
+  geom_vline(xintercept = 2020, linetype = "dashed") +
+  annotate("text", x = 2021, y = 500, 
+           label = "COVID-19", 
+           size = 2, face = "bold", colour = "red") +
+  theme(plot.title = element_text(size = 13, face = "bold"),
+        plot.subtitle = element_text(size = 10),
+        panel.background = element_rect(fill = "white"),
+        panel.grid = element_line(colour = "grey90", 
+                                  linetype = "dashed"))
+```
+
+
+```{r}
+cancer_incidence_borders %>% 
+  filter(sex == "Females",
+         cancer_site %in% c("All cancer types", "Breast")) %>% 
+  ggplot() +
+  geom_line(aes(x = year, y = incidences_all_ages, colour = cancer_site),
+            size = 1.5) +
+  geom_point(aes(x = year, y = incidences_all_ages, colour = cancer_site),
+            size = 2) +
+  scale_x_continuous(breaks = c(1997:2021)) +
+  scale_colour_manual(values = colour_scheme, labels = c("All Combined", "Breast")) +
   theme(axis.text.x = element_text(angle = 45, vjust = 0.5)) +
   ylim(0, 500) +
   labs(
     x = "\n Year",
     y = "Incidences\n",
     title = "All Female Cancer Incidences vs. Female Breast Cancer Incidences",
-    subtitle = "NHS Borders: 1997-2021") +
+    subtitle = "NHS Borders: 1997-2021",
+    colour = "Cancer Type:") +
   geom_vline(xintercept = 2020, linetype = "dashed") +
   annotate("text", x = 2021, y = 500, label = "COVID-19", size = 2, face = "bold", colour = "red") +
   theme(plot.title = element_text(size = 13, face = "bold"),
