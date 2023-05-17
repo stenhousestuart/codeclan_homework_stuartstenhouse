@@ -18,6 +18,8 @@ library(janitor)
 
 colour_scheme <- c("#092869", "#0391BF", "#6B077B")
 
+highlight_colours <- c("highlight" = "firebrick", "standard" = "#0391BF")
+
 # Read In Data
 
 cancer_incidence <- read_csv("data/cancer_incidence_by_health_board.csv") %>% 
@@ -85,7 +87,7 @@ Across all ages and genders, the 3 forms of cancer with the highest number of in
 2. Basal cell carcinoma of the skin	/ 4049
 3. Breast	/ 2614
 
-> *NB - Basal cell carcinoma of the skin is form form of Non-melanoma skin cancer (NHS Inform, 2022)*
+*NB - Basal cell carcinoma of the skin is form form of Non-melanoma skin cancer (NHS Inform, 2022)*
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
 # cancer_incidence_borders %>% 
@@ -198,7 +200,34 @@ cancer_incidence_borders %>%
     subtitle = "NHS Borders: 1997-2021",
     colour = "Cancer Type:") +
   geom_vline(xintercept = 2020, linetype = "dashed") +
-  annotate("text", x = 2021, y = 500, label = "COVID-19", size = 2, face = "bold", colour = "red") +
+  # annotate("text", x = 2021, y = 500, label = "COVID-19", size = 2, face = "bold", colour = "red") +
+  annotate("segment", x = 1999, xend = 1999, y = 200, yend = 150,
+           colour = "#6B077B", size = 0.5, arrow = arrow()) +
+  annotate("text", x = 1999, y = 215, label = "+93%", size = 3, face = "bold", colour = "#6B077B") +
+  annotate("segment", x = 2002, xend = 2002, y = 200, yend = 150,
+           colour = "#6B077B", size = 0.5, arrow = arrow()) +
+  annotate("text", x = 2002, y = 215, label = "+62%", size = 3, face = "bold", colour = "#6B077B") +
+  annotate("segment", x = 2005, xend = 2005, y = 250, yend = 200,
+           colour = "#6B077B", size = 0.5, arrow = arrow()) +
+  annotate("text", x = 2005, y = 265, label = "+189%", size = 3, face = "bold", colour = "#6B077B") +
+  annotate("segment", x = 2008, xend = 2008, y = 225, yend = 175,
+           colour = "#6B077B", size = 0.5, arrow = arrow()) +
+  annotate("text", x = 2008, y = 240, label = "+180%", size = 3, face = "bold", colour = "#6B077B") +
+  annotate("segment", x = 2011, xend = 2011, y = 225, yend = 175,
+           colour = "#6B077B", size = 0.5, arrow = arrow()) +
+  annotate("text", x = 2011, y = 240, label = "+83%", size = 3, face = "bold", colour = "#6B077B") +
+  annotate("segment", x = 2014, xend = 2014, y = 200, yend = 150,
+           colour = "#6B077B", size = 0.5, arrow = arrow()) +
+  annotate("text", x = 2014, y = 215, label = "+14%", size = 3, face = "bold", colour = "#6B077B") +
+  annotate("segment", x = 2017, xend = 2017, y = 200, yend = 150,
+           colour = "#6B077B", size = 0.5, arrow = arrow()) +
+  annotate("text", x = 2017, y = 215, label = "+39%", size = 3, face = "bold", colour = "#6B077B") +
+  annotate("segment", x = 2021, xend = 2021, y = 220, yend = 170,
+           colour = "#6B077B", size = 0.5, arrow = arrow()) +
+  annotate("text", x = 2021, y = 235, label = "+39%", size = 3, face = "bold", colour = "#6B077B") +
+  # annotate("segment", x = 2020, xend = 2020, y = 175, yend = 125,
+  #          colour = "#6B077B", size = 0.5, arrow = arrow()) +
+  # annotate("text", x = 2020, y = 190, label = "+9%", size = 3, face = "bold", colour = "#6B077B") +
   theme(plot.title = element_text(size = 13, face = "bold"),
         plot.subtitle = element_text(size = 10),
         panel.background = element_rect(fill = "white"),
@@ -207,11 +236,40 @@ cancer_incidence_borders %>%
 
 ```
 
+| Year | No. of Breast Cancer Incidences | % Change   |
+|:------|:-------------------|:------------|
+| 1997 | 71                | NA         |
+| 1998 | 69                | -2.816901  |
+| **1999** | **133**               | **92.753623**  |
+| 2000 | 69                | -48.120301 |
+| 2001 | 81                | 17.391304  |
+| **2002** | **131**               | **61.728395**  |
+| 2003 | 67                | -48.854962 |
+| 2004 | 62                | -7.462687  |
+| **2005** | **179**              | **188.709677** |
+| 2006 | 68                | -62.011173 |
+| 2007 | 55                | -19.117647 |
+| **2008** | **154**               | **180.000000** |
+| 2009 | 94                | -38.961039 |
+| 2010 | 86                | -8.510638  |
+| **2011** | **157**              | **82.558140**  |
+| 2012 | 103               | -34.394904 |
+| 2013 | 114               | 10.679612  |
+| **2014** | **130**               | **14.035088**  |
+| 2015 | 90                | -30.769231 |
+| 2016 | 98                | 8.888889   |
+| **2017** | **136**               | **38.775510**  |
+| 2018 | 97                | -28.676471 |
+| 2019 | 98                | 1.030928   |
+| 2020 | 107               | 9.183673   |
+| 2021 | 149               | 39.252336  |
+
 **What does this visualisation tell us?**
 
 - That breast cancer incidences in females are driving the trend of all cancer type incidences.
-- That there appears to be a historic trend in breast cancer incidences where they peak approximately every 3 years.
-- That this trend is less evident in 2020 when we may have expected it, although there is an increase in 2021.
+- That there appears to be a historic trend in breast cancer incidences where they peak approximately every 3 years. The average percentage increase in incidences from the previous year at the 7 peaks highlighted is **94%**. 
+- That this trend is less evident in 2020 when we may have expected it, indeed there was only a **9%** increase from 2020.
+- There is however an increase of **39%** between 2020 and 2021.
 
 **Why might there be a historic 3 year trend?**
 
@@ -278,7 +336,9 @@ div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 </style>
 <div class = "blue">
 
-- We could reasonably expect to see a continued increase in breast cancer incidences in 2022 as screening appointments catch up following the disruption caused by the COVID-19 pandemic. Resources should be allocated accordingly.
+- Breast Cancer screening data should be reviewed in order to establish whether screening originally due in 2020 was fully caught up on in 2021, or whether further increases in incidences in 2022 can be expected due to ongoing knock-on effects of screening disruption. Resources should then be allocated accordingly.
+
+- Resources should be allocated in-line with the observed trend of increased incidences every three years.
 
 - Consideration should be given, informed by evidence, of expanding screening criteria to lower age groups to determine whether or not the current distribution of incidences by age is due to current screening criteria.
 
@@ -372,10 +432,6 @@ cancer_incidence_borders %>%
             size = 1.5) +
   geom_point(aes(x = year, y = incidences_all_ages, colour = cancer_site),
             size = 2) +
-  geom_line(aes(x = year, y = incidences_all_ages, colour = cancer_site),
-            size = 1.5) +
-  geom_point(aes(x = year, y = incidences_all_ages, colour = cancer_site),
-            size = 2) +
   scale_x_continuous(breaks = c(1997, 1999, 2001, 2003, 2005, 2007, 2009,
                                 2011, 2013, 2015, 2017, 2019, 2021)) +
   scale_colour_manual(values = colour_scheme, labels = c("All Combined", "Non-melanoma Skin Cancer")) +
@@ -388,9 +444,9 @@ cancer_incidence_borders %>%
     subtitle = "NHS Borders: 1997-2021",
     colour = "Cancer Type:") +
   geom_vline(xintercept = 2020, linetype = "dashed") +
-  annotate("text", x = 2021, y = 500, 
-           label = "COVID-19", 
-           size = 2, face = "bold", colour = "red") +
+  # annotate("text", x = 2021, y = 500, 
+  #          label = "COVID-19", 
+  #          size = 2, face = "bold", colour = "red") +
   theme(plot.title = element_text(size = 12, face = "bold"),
         plot.subtitle = element_text(size = 8),
         panel.background = element_rect(fill = "white"),
@@ -400,9 +456,11 @@ cancer_incidence_borders %>%
 
 **What does this visualisation tell us?**
 
-- That incidences of male non-melanoma skin cancer are generally following the same trend as incides of all types of cancer in men, slowly increasing from 1997 to 2021.
+- That incidences of male non-melanoma skin cancer are generally following the same trend as incidences of all types of cancer in men, steadily increasing from 1997 to 2021.
 
-- There is no initially obvious trend as seen with breast cancer incidences and the impact of the COVID-19 Pandemic on incidences is also less clear.
+- There is no initially obvious pattern in years where incidences increase or decrease as seen with breast cancer incidences and the impact of the COVID-19 Pandemic on incidences is also less clear.
+
+- There is a ~29% drop in all combined male cancer incidences between 2018 and 2020. Initial exploratory analysis suggests that this was down to a decrease in incidences across a number of cancer types; however, this would require further analysis to confirm.  
 
 ***
 
@@ -457,7 +515,9 @@ div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 </style>
 <div class = "blue">
 
-- Key to effective server precision will be plans to accomdate the projected population increase of ~39.156% over the 20 years from the end of this data set.
+- Key to effective server precision will be plans to accomdate the projected population increase of ~39% over the 20 years from the end of this data set.
+
+- In order to better understand cancer incidence trends and plan resources accordingly, further analysis/research should be conducted in order to understand the decrease in all male cancer incidences between 2018 and 2020.
 
 </div>
 

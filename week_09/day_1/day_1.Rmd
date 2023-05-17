@@ -158,8 +158,9 @@ cancer_incidence_borders %>%
 
 cancer_incidence_borders %>% 
   filter(cancer_site != "All cancer types",
-         sex == "All",
-         incidences_all_ages > 50) %>%
+         sex == "Male",
+         year %in% c("2018", "2019", "2020"),
+         incidences_all_ages > 50) %>% 
   ggplot() +
   geom_line(aes(x = year, y = incidences_all_ages, 
                  colour = cancer_site))
@@ -456,5 +457,51 @@ cancer_incidence_borders %>%
         panel.background = element_rect(fill = "white"),
         panel.grid = element_line(colour = "grey90", 
                                   linetype = "dashed"))
+```
+
+
+```{r}
+
+cancer_incidence_borders_pct <- cancer_incidence_borders %>% 
+  filter(sex == "Females", cancer_site %in% c("Breast")) %>% 
+  select(id, cancer_site, sex, year, incidences_all_ages) %>% 
+  mutate(pct_change = (incidences_all_ages/lag(incidences_all_ages) - 1) * 100)
+
+cancer_incidence_borders_pct %>% 
+  filter(year %in% c("1999", "2002", "2005", "2008", "2011", "2014", "2017", 
+                     "2020", "2021"))
+
+cancer_incidence_borders_pct %>% 
+  select(year, incidences_all_ages, pct_change)
+
+```
+
+```{r}
+cancer_incidence_borders_highlights <- cancer_incidence_borders %>% 
+    mutate(highlight = case_when(
+    id == 4128 ~ "highlight",
+    id == 4131 ~ "highlight",
+    id == 4134 ~ "highlight",
+    id == 4137 ~ "highlight",
+    id == 4140 ~ "highlight",
+    id == 4143 ~ "highlight",
+    id == 4146 ~ "highlight",
+    TRUE          ~ "standard"
+    )
+  )
+```
+
+```{r}
+cancer_incidence_borders %>% 
+  filter(sex == "Male",
+         cancer_site == "All cancer types") %>% 
+  select(hb, cancer_site, sex, year, incidences_all_ages) %>%
+  mutate(pct_change = (incidences_all_ages/lag(incidences_all_ages) - 1) * 100) 
+```
+
+```{r}
+cancer_incidence_borders_pct_male %>%
+  select(cancer_site, year, incidences_all_ages, pct_change) %>% 
+  filter(year %in% c("2018", "2019"))
 ```
 
