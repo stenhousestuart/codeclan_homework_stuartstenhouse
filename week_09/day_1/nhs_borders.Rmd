@@ -13,12 +13,11 @@ output:
 # Load Libraries
 library(tidyverse)
 library(janitor)
+library(infer)
 
 # Set Colour Scheme
 
 colour_scheme <- c("#092869", "#0391BF", "#6B077B")
-
-highlight_colours <- c("highlight" = "firebrick", "standard" = "#0391BF")
 
 # Read In Data
 
@@ -39,9 +38,6 @@ geography_codes <- read_csv("data/geography_codes_and_labels.csv") %>%
 
 cancer_incidence_borders <- cancer_incidence %>% 
   filter(hb == "S08000016")
-
-
-cancer_incidence_scotland_borders <- 
 
 # Clean five_year_summary
 
@@ -99,10 +95,10 @@ Across all ages and genders, the 3 forms of cancer with the highest number of in
 #   head(3)
 ```
 
-For the purposes of clarity, this report is not intended to be and is by no means an exhaustive overview of cancer incidences and rates within NHS Borders and Scotland as a whole. This report will focus on discussion around 2 cancer types that show the largest incidence numbers in NHS Borders between 1997 and 2021.
 
-1. Non-melanoma skin cancer.
-2. Breast cancer.
+For the purposes of clarity, this report does not seek to provide an exhaustive overview of cancer incidences and rates within NHS Borders. Instead, it aims to provide further understanding by focussing on one trend which it is believed will require consideration for effective cancer service planning within NHS Borders.
+
+To do this, the report focuses on incidences of breast cancer in woman, which have the 3rd overall largest number of incidences in NHS Borders between 1997 and 2021. However, additional analysis on Non-melanoma skin cancer which has the highest number of overall incidences in NHS Borders is also availble.
 
 ***
 
@@ -201,30 +197,30 @@ cancer_incidence_borders %>%
     colour = "Cancer Type:") +
   geom_vline(xintercept = 2020, linetype = "dashed") +
   # annotate("text", x = 2021, y = 500, label = "COVID-19", size = 2, face = "bold", colour = "red") +
-  annotate("segment", x = 1999, xend = 1999, y = 200, yend = 150,
-           colour = "#6B077B", size = 0.5, arrow = arrow()) +
-  annotate("text", x = 1999, y = 215, label = "+93%", size = 3, face = "bold", colour = "#6B077B") +
-  annotate("segment", x = 2002, xend = 2002, y = 200, yend = 150,
-           colour = "#6B077B", size = 0.5, arrow = arrow()) +
-  annotate("text", x = 2002, y = 215, label = "+62%", size = 3, face = "bold", colour = "#6B077B") +
-  annotate("segment", x = 2005, xend = 2005, y = 250, yend = 200,
-           colour = "#6B077B", size = 0.5, arrow = arrow()) +
-  annotate("text", x = 2005, y = 265, label = "+189%", size = 3, face = "bold", colour = "#6B077B") +
-  annotate("segment", x = 2008, xend = 2008, y = 225, yend = 175,
-           colour = "#6B077B", size = 0.5, arrow = arrow()) +
-  annotate("text", x = 2008, y = 240, label = "+180%", size = 3, face = "bold", colour = "#6B077B") +
-  annotate("segment", x = 2011, xend = 2011, y = 225, yend = 175,
-           colour = "#6B077B", size = 0.5, arrow = arrow()) +
-  annotate("text", x = 2011, y = 240, label = "+83%", size = 3, face = "bold", colour = "#6B077B") +
-  annotate("segment", x = 2014, xend = 2014, y = 200, yend = 150,
-           colour = "#6B077B", size = 0.5, arrow = arrow()) +
-  annotate("text", x = 2014, y = 215, label = "+14%", size = 3, face = "bold", colour = "#6B077B") +
-  annotate("segment", x = 2017, xend = 2017, y = 200, yend = 150,
-           colour = "#6B077B", size = 0.5, arrow = arrow()) +
-  annotate("text", x = 2017, y = 215, label = "+39%", size = 3, face = "bold", colour = "#6B077B") +
-  annotate("segment", x = 2021, xend = 2021, y = 220, yend = 170,
-           colour = "#6B077B", size = 0.5, arrow = arrow()) +
-  annotate("text", x = 2021, y = 235, label = "+39%", size = 3, face = "bold", colour = "#6B077B") +
+  # annotate("segment", x = 1999, xend = 1999, y = 200, yend = 150,
+  #          colour = "#6B077B", size = 0.5, arrow = arrow()) +
+  annotate("text", x = 1999, y = 150, label = "+93%", size = 3, face = "bold", colour = "darkgreen") +
+  # annotate("segment", x = 2002, xend = 2002, y = 200, yend = 150,
+  #          colour = "#6B077B", size = 0.5, arrow = arrow()) +
+  annotate("text", x = 2002, y = 150, label = "+62%", size = 3, face = "bold", colour = "darkgreen") +
+  # annotate("segment", x = 2005, xend = 2005, y = 250, yend = 200,
+  #          colour = "#6B077B", size = 0.5, arrow = arrow()) +
+  annotate("text", x = 2005, y = 200, label = "+189%", size = 3, face = "bold", colour = "darkgreen") +
+  # annotate("segment", x = 2008, xend = 2008, y = 225, yend = 175,
+  #          colour = "#6B077B", size = 0.5, arrow = arrow()) +
+  annotate("text", x = 2008, y = 175, label = "+180%", size = 3, face = "bold", colour = "darkgreen") +
+  # annotate("segment", x = 2011, xend = 2011, y = 225, yend = 175,
+  #          colour = "#6B077B", size = 0.5, arrow = arrow()) +
+  annotate("text", x = 2011, y = 175, label = "+83%", size = 3, face = "bold", colour = "darkgreen") +
+  # annotate("segment", x = 2014, xend = 2014, y = 200, yend = 150,
+  #          colour = "#6B077B", size = 0.5, arrow = arrow()) +
+  annotate("text", x = 2014, y = 150, label = "+14%", size = 3, face = "bold", colour = "darkgreen") +
+  # annotate("segment", x = 2017, xend = 2017, y = 200, yend = 150,
+  #          colour = "#6B077B", size = 0.5, arrow = arrow()) +
+  annotate("text", x = 2017, y = 155, label = "+39%", size = 3, face = "bold", colour = "darkgreen") +
+  # annotate("segment", x = 2021, xend = 2021, y = 220, yend = 170,
+  #          colour = "#6B077B", size = 0.5, arrow = arrow()) +
+  annotate("text", x = 2021, y = 170, label = "+39%", size = 3, face = "bold", colour = "darkgreen") +
   # annotate("segment", x = 2020, xend = 2020, y = 175, yend = 125,
   #          colour = "#6B077B", size = 0.5, arrow = arrow()) +
   # annotate("text", x = 2020, y = 190, label = "+9%", size = 3, face = "bold", colour = "#6B077B") +
@@ -270,6 +266,25 @@ cancer_incidence_borders %>%
 - That there appears to be a historic trend in breast cancer incidences where they peak approximately every 3 years. The average percentage increase in incidences from the previous year at the 7 peaks highlighted is **94%**. 
 - That this trend is less evident in 2020 when we may have expected it, indeed there was only a **9%** increase from 2020.
 - There is however an increase of **39%** between 2020 and 2021.
+
+**What does hypothesis testing tell us?**
+
+**Question:** Is the mean number of female breast cancer incidences in *"peak years"* (1999, 2002, 2005, 2008, 2011, 2014, 2017) greater than mean number of female breast cancer incidences in *"non-peak years"* (1997, 1998, 2000, 2001, 2003, 2006, 2007, 2009, 2010, 2012, 2013, 2015, 2016, 2018, 2019)?
+
+**Test Used:** Two Sample Mean Test (Independent)
+
+**Significance Level:** 0.05
+
+**Bootstrap Method:** Permute
+
+**H0:** $\mu{1}$ - $\mu{2}$ = 0
+**H1:** $\mu{1}$ - $\mu{2}$ > 0 
+
+Based on a bootstrapped NULL distribution, a very low p-value which is less than 0.05 is returned. We therefor reject H0 in favor of H1 with evidence suggesting that there is a statistically significant increase in the mean number of female breast cancer incidences in *"peak years"*.
+
+In this instance the p-value is returned as 0 which we will interpret as p < 0.001 so as not to be misleading and suggest absolute certainty. As this is lower than our set significance level of 0.05 we can reject H0 which stated that there was no statistically significant difference in the mean number of female breast cancer incidences in *"peak years"* compared to *"non-peak years"*. We reject H0 in favour of H1, whilst not asserting this as true, as their is sufficient evidence to support the Hypothesis that the the mean number of female breast cancer incidences in *"peak years"* is greater than in *"non-peak years"* when considered against the hypothesis that there is no difference.
+
+To explain further the rationale for this, the p-value represents the probability of obtaining the observed statistic (mean difference of female breast cancer incidences 58.04762) from our sample assuming H0 was true (eg. if there was no difference). Therefor the probability of observing this mean difference if there was no difference is very low.
 
 **Why might there be a historic 3 year trend?**
 
@@ -336,13 +351,15 @@ div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 </style>
 <div class = "blue">
 
-- Breast Cancer screening data should be reviewed in order to establish whether screening originally due in 2020 was fully caught up on in 2021, or whether further increases in incidences in 2022 can be expected due to ongoing knock-on effects of screening disruption. Resources should then be allocated accordingly.
+- Screening data should be reviewed to establish if the resulting back-log from COVID-19 has been cleared in order to establish whether a further increase in incidences should be anticipated in 2022.
 
-- Resources should be allocated in-line with the observed trend of increased incidences every three years.
+- Resources should be allocated according to the observed trend of increased incidences every three years
 
-- Consideration should be given, informed by evidence, of expanding screening criteria to lower age groups to determine whether or not the current distribution of incidences by age is due to current screening criteria.
+- Research/Analysis should be conducted to further understand and confirm any reason for this trend, including any links to screening schedules.
 
-- A projected population increase of ~4% over the 20 years from the end of this data set should be taken into consideration in long term planning.
+- Research/Analysis should be conducted to establish whether increased incidence with age is in any way the result of current screening criteria and if therefor screening criteria should be widened.
+
+- Long term service planning should take into consideration the ~4% projected population increase of the female 50-70 demographic in NHS Borders, as rejected by the National Records of Scotland.
 
 </div>
 
@@ -522,6 +539,17 @@ div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 </div>
 
 ***
+
+# Data Sources
+
+- Public Health Scotland: Incidence by Health Board
+https://www.opendata.nhs.scot/dataset/annual-cancer-incidence/resource/3aef16b7-8af6-4ce0-a90b-8a29d6870014
+
+- Public Health Scotland: 5 Year Summary of Incidence by Health Board
+https://www.opendata.nhs.scot/dataset/annual-cancer-incidence/resource/e8d33b2b-1fb2-4d59-ad21-20fa2f76d9d5
+
+- Public Health Scotland: Health Board 2014 - Health Board 2019 (Geography Codes)
+https://www.opendata.nhs.scot/dataset/geography-codes-and-labels/resource/652ff726-e676-4a20-abda-435b98dd7bdc
 
 # References
 - NHS Inform, 2022:
