@@ -1,5 +1,5 @@
 ---
-title: "NHS Borders"
+title: ""
 output:
   html_document:
     theme: flatly
@@ -72,6 +72,16 @@ five_year_summary_long <- five_year_summary_borders_incidence %>%
                                       "80-84", "85+")))
 
 ```
+
+<center>
+![](images/nhs-borders.jpg)
+</center>
+
+<font size="6">
+<center>
+**NHS Borders Cancer Incidence Report**
+</center>
+</font> 
 
 # Overview
 
