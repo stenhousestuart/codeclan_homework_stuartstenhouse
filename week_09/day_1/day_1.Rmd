@@ -505,3 +505,50 @@ cancer_incidence_borders_pct_male %>%
   filter(year %in% c("2018", "2019"))
 ```
 
+```{r}
+cancer_incidence_borders_sample <- cancer_incidence_borders %>%
+  filter(sex == "Females", cancer_site == "Breast") %>%
+  select(id, cancer_site, sex, year, incidences_all_ages) %>% 
+    mutate(peak = case_when(
+    year == 1999 ~ "peak",
+    year == 2002 ~ "peak",
+    year == 2005 ~ "peak",
+    year == 2008 ~ "peak",
+    year == 2011 ~ "peak",
+    year == 2014 ~ "peak",
+    year == 2017 ~ "peak",
+    TRUE          ~ "standard"
+    )
+  )
+```
+
+
+```{r}
+observed_stat <- cancer_incidence_borders_sample %>% 
+  specify(incidences_all_ages ~ peak) %>%
+  calculate(stat = "diff in means", order = c("peak", "standard"))
+
+observed_stat
+```
+
+```{r}
+null_distribution <- cancer_incidence_borders_sample %>% 
+  specify(response = incidences_all_ages, explanatory = peak) %>%
+  hypothesize(null = "independence") %>%
+  generate(reps = 1000, type = "permute") %>% 
+  calculate(stat = "diff in means", order = c("peak", "standard"))
+
+null_distribution
+```
+
+```{r}
+null_distribution %>%
+  visualise() +
+  shade_p_value(obs_stat = observed_stat, direction = "right")
+```
+
+```{r}
+p_value <- null_distribution %>%
+  get_p_value(obs_stat = observed_stat, direction = "right")
+```
+

@@ -193,7 +193,7 @@ cancer_incidence_borders %>%
   geom_line(aes(x = year, y = incidences_all_ages, colour = cancer_site),
             size = 1.5) +
   geom_point(aes(x = year, y = incidences_all_ages, colour = cancer_site),
-            size = 2) +
+            size = 3) +
   scale_x_continuous(breaks = c(1997, 1999, 2001, 2003, 2005, 2007, 2009,
                                 2011, 2013, 2015, 2017, 2019, 2021)) +
   scale_colour_manual(values = colour_scheme, labels = c("All Combined", "Breast")) +
@@ -241,6 +241,8 @@ cancer_incidence_borders %>%
                                   linetype = "dashed"))
 
 ```
+
+*NB - Percentages on the above visualisation indicate % change in incidences from the previous year.* 
 
 | Year | No. of Breast Cancer Incidences | % Change   |
 |:------|:-------------------|:------------|
