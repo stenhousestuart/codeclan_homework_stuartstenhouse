@@ -72,7 +72,7 @@ There doesn't appear to be any strong pattern here, which supports the reliabili
 There distribution of the residuals appears to be mostly normal, with the exception of a couple of outliers, supporting the reliability of the p-value.
 
 - Scale Location
-The spread of residiuals appears to be fairly consistent across all fitted values, supporting reliability of the p-value.
+The spread of residuals appears to be fairly consistent across all fitted values, supporting reliability of the p-value.
 
 The p-value returned is very low, suggesting that the relationship is statistically significant.
 
