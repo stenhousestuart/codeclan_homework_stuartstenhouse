@@ -1,0 +1,128 @@
+---
+title: "Week 10 / Day 2"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(GGally)
+library(ggfortify)
+
+```
+
+# 1.
+Load the housing_prices.csv data set and undertake an initial exploration of the data.
+
+```{r}
+housing <- read_csv("data/housing.csv")
+```
+
+```{r}
+glimpse(housing)
+```
+
+```{r}
+summary(housing)
+```
+
+# 2. 
+We expect the total_rooms of houses to be strongly correlated with total_bedrooms. Use ggpairs() to investigate correlations between these two variables.
+
+```{r}
+housing %>% 
+  select(total_rooms, total_bedrooms) %>% 
+  ggpairs(progress = FALSE)
+```
+
+# 3. 
+So, we do find significant correlations. Let’s drop total_bedrooms from the dataset, and use only total_rooms going forward.
+
+```{r}
+housing_trim <- housing %>% 
+  select(-total_bedrooms)
+```
+
+# 4.1
+
+We are interested in developing a regression model for the median_house_value of a house in terms of the possible predictor variables in the dataset.
+
+Use ggpairs() to investigate correlations between median_house_value and the predictors (this may take a while to run, don’t worry, make coffee or something).
+
+```{r}
+ggpairs(housing_trim, progress = FALSE)
+```
+
+# 4.2
+Perform further ggplot visualisations of any significant correlations you find.
+
+`ggpairs()` shows a strong correlation between `median_house_value` and `median_income`, with a Correlation Coefficient of 0.688. 
+
+This is visualised below.
+
+```{r}
+
+housing_trim %>% 
+  ggplot(aes(x = median_income, y = median_house_value)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE)
+
+```
+
+# 5. 
+Shortly we may try a regression model to fit the categorical predictor ocean_proximity. Investigate the level of ocean_proximity predictors. How many dummy variables do you expect to get from it?
+
+There are 5 levels of `ocean_proximity` so we would use 4 dummies. 
+
+```{r}
+
+housing_trim %>% 
+  distinct(ocean_proximity)
+```
+
+# 6.
+Start with simple linear regression. Regress median_house_value on median_income and check the regression diagnostics.
+
+```{r}
+housing_model <- lm(median_house_value ~ median_income, 
+                    data = housing_trim)
+```
+
+```{r}
+autoplot(housing_model)
+```
+
+Plot 1: I'm unsure of the correct interpretation of this; however, the smoothed line suggests no clear pattern to distribution staying relatively flat and close to 0. To the my eye though it looks as though lower fitted values are over-estimated and higher fitted values are under-estimated. 
+Plot 2: There is some variation from the normal distribution, although the residuals are relatively normally distributed.
+Plot 3: I'm unsure on the correct interpretation of this; however, the smoothed line stays relatively constant/flat although to my eye there looks to be funneling at the higher end of the fitted values. 
+
+# 7
+Add another predictor of your choice. Check your assumptions, diagnostics, and interpret the model.
+
+```{r}
+housing_trim %>% 
+  ggplot(aes(x = median_house_value, y = ocean_proximity))+
+  geom_boxplot()
+```
+
+```{r}
+housing_model_2 <- lm(median_house_value ~ median_income + ocean_proximity, 
+                    data = housing_trim)
+```
+
+```{r}
+autoplot(housing_model_2)
+```
+
+My interpretations here are the same as the first model, although again I'm a little unsure if these are correct.
+
+Plot 1: I'm unsure of the correct interpretation of this; however, the smoothed line suggests no clear pattern to distribution staying relatively flat and close to 0. To the my eye though it looks as though lower fitted values are over-estimated and higher fitted values are under-estimated. 
+Plot 2: There is some variation from the normal distribution, although the residuals are relatively normally distributed.
+Plot 3: I'm unsure on the correct interpretation of this; however, the smoothed line stays relatively constant/flat although to my eye there looks to be funneling at the higher end of the fitted values. 
+
+```{r}
+summary(housing_model_2)
+```
+
+- The Adjusted R-squared value is 0.5879 meaning that together the predictors of median_income and ocean_proximity explain 69% of median_house_value variation.
+
+- The p-values for each of the individual predictors are very low, suggesting that all predictors statistically significant.
