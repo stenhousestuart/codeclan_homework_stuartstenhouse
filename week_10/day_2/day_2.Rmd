@@ -15,6 +15,8 @@ Load the housing_prices.csv data set and undertake an initial exploration of the
 
 ```{r}
 housing <- read_csv("data/housing.csv")
+
+housing_prices <- read_csv("data/housing_prices.csv")
 ```
 
 ```{r}
@@ -32,6 +34,7 @@ We expect the total_rooms of houses to be strongly correlated with total_bedroom
 housing %>% 
   select(total_rooms, total_bedrooms) %>% 
   ggpairs(progress = FALSE)
+
 ```
 
 # 3. 
@@ -40,6 +43,176 @@ So, we do find significant correlations. Let’s drop total_bedrooms from the da
 ```{r}
 housing_trim <- housing %>% 
   select(-total_bedrooms)
+
+housing_prices_trim <- housing_prices %>% 
+  select(-total_bedrooms)
+```
+
+#### Added At Review -----------------------------------------------------------
+
+We could engineer some new variables.
+
+```{r}
+housing_trim_eng <- housing_trim %>%
+  mutate(rooms_per_house = total_rooms / households,
+         people_per_house = population / households,
+         rooms_per_person = total_rooms / population)
+
+housing_trim_eng
+
+housing_prices_eng <- housing_prices_trim %>%
+  mutate(rooms_per_house = total_rooms / households,
+         people_per_house = population / households,
+         rooms_per_person = total_rooms / population)
+
+housing_prices_eng
+
+
+```
+
+And take a look at these using `skim()` - which when we do, we can see that a lot of the variables are positively skewed.
+
+Positively skewed data is not good for linear models.
+
+```{r}
+
+housing_trim_eng %>% 
+  skimr::skim() %>% 
+  view()
+
+```
+
+Where we have skewed data that is non-negative, we can log transform it to make it more normal.
+
+```{r}
+
+housing_prices_eng %>%
+  ggplot(aes(x = median_income)) +
+  geom_histogram()
+
+housing_prices_eng %>%
+  ggplot(aes(x = median_house_value)) +
+  geom_histogram()
+
+```
+
+```{r}
+housing_log <- housing_prices_eng %>% 
+  select(-c(ocean_proximity, latitude, longitude, housing_median_age)) %>% 
+  mutate(across(everything(), log)) %>% 
+  rename_with(~ paste0("log_", .x)) %>% 
+  bind_cols(housing_prices_eng)
+```
+
+```{r}
+housing_log %>%
+  ggplot(aes(x = log_median_income)) +
+  geom_histogram()
+
+housing_log %>%
+  ggplot(aes(x = log_median_house_value)) +
+  geom_histogram()
+```
+
+With values now transformed and more normal. Lets have a look for some relationships.
+
+```{r}
+housing_log %>% 
+  ggplot(aes(x = median_income, y = median_house_value)) +
+  geom_point()
+```
+
+```{r}
+
+housing_log %>% 
+  ggplot(aes(x = ocean_proximity, y = median_house_value)) +
+  geom_boxplot()
+
+```
+
+There appears to be some kind of relationship between ocean proximity and house value.
+
+```{r}
+housing_log %>% 
+  ggplot(aes(x = longitude, y = latitude, colour = ocean_proximity)) +
+  geom_point()
+```
+
+Lets group some of those levels!
+
+```{r}
+housing_ocean <- housing_log %>% 
+  mutate(ocean_prox_grouped = if_else(
+    ocean_proximity %in% c("<1H OCEAN", "NEAR BAY", "NEAR OCEAN"), "NEAR WATER", ocean_proximity))
+
+housing_ocean
+```
+
+```{r}
+housing_ocean %>% 
+  ggplot(aes(x = longitude, y = latitude, colour = ocean_prox_grouped)) +
+  geom_point()
+```
+
+```{r}
+
+housing_ocean %>%
+  select(log_median_house_value, 
+         log_total_rooms, 
+         log_population, 
+         log_households,
+         log_rooms_per_house,
+         log_people_per_house,
+         log_rooms_per_person) %>% 
+  ggpairs(progress = FALSE)
+
+```
+
+```{r}
+housing_ocean %>%
+  select(log_median_house_value, housing_median_age, log_median_income, ocean_prox_grouped) %>% 
+  ggpairs(aes(colour = ocean_prox_grouped, 
+              alpha = 0.5),
+          progress = FALSE)
+```
+
+```{r}
+model1 <- lm(log_median_house_value ~ log_median_income,
+             data = housing_ocean)
+
+autoplot(model1)
+```
+
+```{r}
+summary(model1)
+```
+
+
+Once have a Simple Linear Regression we want to identify which predictors to add next.
+
+We do this by considering our residuals.
+
+```{r}
+library(modelr)
+```
+
+```{r}
+housing_ocean %>% 
+  add_residuals(model = model1) %>%  # Adds redis column, difference from actual to fitted median_house_value 
+  select(log_median_house_value, 
+         ocean_prox_grouped, 
+         log_rooms_per_person, 
+         log_people_per_house, 
+         resid) %>% 
+  ggpairs(progress = FALSE)
+```
+
+
+```{r}
+model1 <- lm(log_median_house_value ~ log_median_income,
+             data = housing_ocean)
+
+autoplot(model1)
 ```
 
 # 4.1
@@ -126,3 +299,5 @@ summary(housing_model_2)
 - The Adjusted R-squared value is 0.5879 meaning that together the predictors of median_income and ocean_proximity explain 69% of median_house_value variation.
 
 - The p-values for each of the individual predictors are very low, suggesting that all predictors statistically significant.
+
+
