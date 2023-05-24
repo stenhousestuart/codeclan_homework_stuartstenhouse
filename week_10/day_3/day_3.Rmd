@@ -1,0 +1,302 @@
+---
+title: "Week 10 / Day 3"
+output: html_notebook
+---
+
+# Setup
+
+```{r}
+library(tidyverse)
+library(modelr)
+library(GGally)
+library(ggfortify)
+library(skimr)
+```
+
+```{r}
+house_prices <- read_csv("data/kc_house_data.csv")
+```
+
+```{r}
+glimpse(house_prices)
+```
+
+```{r}
+summary(house_prices)
+```
+
+
+# 1.
+
+Tidy up the data ready for regression:
+
+- You might like to think about removing some or all of `date`, `id`, `sqft_living15`, `sqft_lot15` and `zipcode` (`lat` and `long` provide a better measure of location in any event).
+
+```{r}
+house_prices_clean <- house_prices %>% 
+  select(-c("date", "id", "sqft_living15", "sqft_lot15", "zipcode"))
+```
+
+- Have a think about how to treat `waterfront`. Should we convert its type?
+
+```{r}
+
+house_prices_clean <- house_prices_clean %>% 
+  mutate(waterfront = if_else(waterfront == 1, TRUE, FALSE))
+
+```
+
+- We converted `yr_renovated` into a `renovated` logical variable, indicating whether the property had ever been renovated. You may wish to do the same.
+
+```{r}
+house_prices_clean <- house_prices_clean %>% 
+  mutate(renovated = if_else(yr_renovated == 0, FALSE, TRUE)) %>% 
+  select(-yr_renovated)
+```
+
+-  Have a think about how to treat `view`, `condition` and `grade`? Are they interval or categorical ordinal data types?
+
+Based on information from the data dictionary:
+
+`view` appears to be categorical order, with levels 0, 1, 2, 3, & 4
+`condition` appears to be categorical order, with levels 0, 1, 2, 3, 4 & 5
+`grade` appears to be categorical order, with levels 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13
+
+To better represent this, all 3 variables will be updated to factor types with appropriate levels set. I did consider binning the `grade` values; however, I'm unsure of how consistent size bins could be set. The two bins identified in the dictionary are from 1-3 and 11-13, leaving 7 remaining possible values which cannot be placed in bins of the same size (eg. 3). Therefor, for now, I will proceed with analysis with `grade` values as they are.
+
+```{r}
+house_prices_clean <- house_prices_clean %>% 
+  mutate(view = factor(view, levels = c(0, 1, 2, 3, 4)),
+         condition = factor(condition, levels = c(0, 1, 2, 3, 4, 5)),
+         grade = factor(grade, levels = c(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13)))
+```
+
+# 2.
+
+Check for aliased variables using the alias() function (this takes in a formula object and a data set). Remove variables that lead to an alias. Check the ‘Elements of multiple regression’ lesson for a dropdown containing further information on finding aliased variables in a dataset.
+
+```{r}
+alias(price ~ ., data = house_prices_clean)
+```
+
+From the above `sqft_basement` appears to be an alias with `sqft_living` and `sqft_above`. I will therefore remove `sqft_basement` to avoid multicollinearity.
+
+```{r}
+house_prices_trim <- house_prices_clean %>% 
+  select(-sqft_basement)
+```
+
+Re-running the `alias()` function on `house_prices_trim` confirms that there are no remaining aliases.
+
+```{r}
+alias(price ~ ., data = house_prices_trim)
+```
+
+# 3.
+
+Systematically build a regression model containing up to four main effects (remember, a main effect is just a single predictor with coefficient), testing the regression diagnostics as you go.
+
+Remember, if you are not sure whether including a categorical predictor is statistically justified, run an anova() test passing in the models with- and without the categorical predictor and check the p-value of the test.
+
+## 1st Predictor 
+
+### Use `ggpairs()` To Identify First Predictor
+
+```{r message=FALSE, warning=FALSE}
+house_prices_trim %>% 
+  ggpairs(progress = FALSE)
+```
+
+`sqft_living` has a Correlation Coefficient of 0.702, the highest of the returned Correlation Coefficients, and is indicated as being statistically significant. I will therefor use this as the first predictor in my model.
+
+### Build Model With 1st Predictor
+
+When first generating my diagnostic plots, these failed. I believe this was due to a skewed distribtion of `sqft_living`. At the same time I noticed that the `price` distribution was also skewed. I have therefor created a new `sqft_living_log` and `price_log` below which both have more normal distributions and I will use these in my model
+
+```{r}
+house_prices_trim <- house_prices_trim %>%
+  mutate(price_log = log(price)) %>%
+  select(-price)
+```
+
+```{r}
+house_prices_trim <- house_prices_trim %>%
+  mutate(sqft_living_log = log(sqft_living)) %>% 
+  select(-sqft_living)
+```
+
+```{r}
+model_1 <- lm(price_log ~ sqft_living_log, data = house_prices_trim) 
+```
+
+### Check Diagnostic Plots
+
+```{r}
+autoplot(model_1)
+```
+
+- Plot 1: Some evidence of a pattern - unsure if passable or not.
+- Plot 2: Distribution of standardised residuals appears fairly normal.
+- Plot 3: No evidence of funneling.
+
+For the purposes of allowing me to proceed in the context of the homework I'm going to accept the above diagnostic plots as being ok and proceed.
+
+### Check Model Effectiveness
+
+```{r}
+summary(model_1)
+```
+
+- r2 = 0.4555
+- Residual Standard Error = 0.3886 on 21611 degrees of freedom
+- Impact of predictor `sqft_living_log` is statistically significant based on p-value of <2e-16.
+
+I will therefor keep `sqft_living_log` in my model.
+
+## 2nd Predictor 
+
+### Add Residuals
+
+```{r}
+house_prices_resid <- house_prices_trim %>% 
+    add_residuals(model = model_1) %>% 
+    select(-c(price_log, sqft_living_log)) 
+```
+
+```{r message=FALSE, warning=FALSE}
+ggpairs(house_prices_resid, progress = FALSE)
+```
+
+`lat` has a Correlation Coefficient of 0.573 with the residuals and is indicated as being statistically significant. I will therefor use this as the second predictor in my model.
+
+```{r}
+
+model_2 <- lm(price_log ~ sqft_living_log + lat, data = house_prices_trim) 
+
+```
+
+### Check Diagnostic Plots
+
+```{r}
+autoplot(model_2)
+```
+
+- Plot 1: No strong evidence of a pattern, residuals appear to be independent.
+- Plot 2: Distribution of standardised residuals appears fairly normal.
+- Plot 3: Some evidence of an upward trend, but no evidence of funneling.
+
+I will accept the above diagnostic plots as being ok and proceed.
+
+### Check Model Effectiveness
+
+```{r}
+summary(model_2)
+```
+
+- r2 = 0.6343 
+- Residual Standard Error = 0.3185 on 21610 degrees of freedom
+- Impact of predictor `sqft_living_log` is statistically significant based on p-value of <2e-16.
+- Impact of predictor `lat` is statistically significant based on p-value of <2e-16.
+
+I will therefor keep both `sqft_living_log` and `lat` in my model.
+
+## 3rd Predictor 
+
+### Add Residuals
+
+```{r}
+house_prices_resid <- house_prices_trim %>% 
+    add_residuals(model = model_2) %>% 
+    select(-c(price_log, sqft_living_log, lat)) 
+```
+ 
+```{r message=FALSE, warning=FALSE}
+ggpairs(house_prices_resid, progress = FALSE)
+```
+
+Based on the boxplot displayed, `waterfront` appears as though it may have a correlation to the residuals. I will use this as the third predictor in my model.
+
+```{r}
+model_3 <- lm(price_log ~ sqft_living_log + lat + waterfront, 
+              data = house_prices_trim) 
+```
+
+### Check Diagnostic Plots
+
+```{r}
+autoplot(model_3)
+```
+
+- Plot 1: No strong evidence of a pattern, residuals appear to be independent.
+- Plot 2: Distribution of standardised residuals appears fairly normal.
+- Plot 3: No evidence of funneling.
+
+I will accept the above diagnostic plots as being ok and proceed.
+
+### Check Model Effectiveness
+
+```{r}
+summary(model_3)
+```
+
+- r2 = 0.6509
+- Residual Standard Error = 0.3112 on 21609 degrees of freedom
+- Impact of predictor `sqft_living_log` is statistically significant based on p-value of <2e-16.
+- Impact of predictor `lat` is statistically significant based on p-value of <2e-16.
+- Impact of predictor `waterfrontTRUE` is statistically significant based on p-value of <2e-16.
+
+I will therefor keep `sqft_living_log`, `lat` and `waterfront` in my model.
+
+## 4th Predictor 
+
+### Add Residuals
+
+```{r}
+house_prices_resid <- house_prices_trim %>% 
+    add_residuals(model = model_3) %>% 
+    select(-c(price_log, sqft_living_log, lat, waterfront)) 
+```
+ 
+```{r message=FALSE, warning=FALSE}
+ggpairs(house_prices_resid, progress = FALSE)
+```
+
+Based on the boxplot displayed, `grade` appears as though it may have a correlation to the residuals. I will use this as the third predictor in my model.
+
+```{r}
+model_4 <- lm(price_log ~ sqft_living_log + lat + waterfront + grade, 
+              data = house_prices_trim) 
+```
+
+### Check Diagnostic Plots
+
+```{r}
+autoplot(model_4)
+```
+
+- Plot 1: No strong evidence of a pattern, residuals appear to be independent.
+- Plot 2: Distribution of standardised residuals appears fairly normal.
+- Plot 3: Some evidence of an upward trend, but no evidence of funneling.
+
+I will accept the above diagnostic plots as being ok and proceed.
+
+### Check Model Effectiveness
+
+```{r}
+summary(model_4)
+```
+
+- r2 = 0.7155
+- Residual Standard Error = 0.2809 on 21598 degrees of freedom
+- Impact of predictor `sqft_living_log` is statistically significant based on p-value of <2e-16.
+- Impact of predictor `lat` is statistically significant based on p-value of <2e-16.
+- Impact of predictor `waterfrontTRUE` is statistically significant based on p-value of <2e-16.
+- Impact of some of levels of `grade` are statistically significant based on their p-values but not others.
+
+To support a decision on whether or not `grade` should be kept in the model I will use an Anova.
+
+```{r}
+anova(model_3, model_4)
+```
+
+The results of the Anova suggest that adding `grade` as a predictor to the model did make a statistically significant difference. I will therefor keep `grade` in my model as the 4th predictor.
