@@ -25,7 +25,6 @@ glimpse(house_prices)
 summary(house_prices)
 ```
 
-
 # 1.
 
 Tidy up the data ready for regression:
@@ -41,6 +40,8 @@ house_prices_clean <- house_prices %>%
 
 ```{r}
 
+# Convert waterfront to logical.
+
 house_prices_clean <- house_prices_clean %>% 
   mutate(waterfront = if_else(waterfront == 1, TRUE, FALSE))
 
@@ -49,6 +50,9 @@ house_prices_clean <- house_prices_clean %>%
 - We converted `yr_renovated` into a `renovated` logical variable, indicating whether the property had ever been renovated. You may wish to do the same.
 
 ```{r}
+
+# create new logical renovated variable and drop yr_renovated from data to be used in model.
+
 house_prices_clean <- house_prices_clean %>% 
   mutate(renovated = if_else(yr_renovated == 0, FALSE, TRUE)) %>% 
   select(-yr_renovated)
@@ -58,11 +62,11 @@ house_prices_clean <- house_prices_clean %>%
 
 Based on information from the data dictionary:
 
-`view` appears to be categorical order, with levels 0, 1, 2, 3, & 4
-`condition` appears to be categorical order, with levels 0, 1, 2, 3, 4 & 5
-`grade` appears to be categorical order, with levels 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13
+`view` appears to be categorical ordinal, with levels 0, 1, 2, 3, & 4
+`condition` appears to be categorical ordinal, with levels 0, 1, 2, 3, 4 & 5
+`grade` appears to be categorical ordinal, with levels 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13
 
-To better represent this, all 3 variables will be updated to factor types with appropriate levels set. I did consider binning the `grade` values; however, I'm unsure of how consistent size bins could be set. The two bins identified in the dictionary are from 1-3 and 11-13, leaving 7 remaining possible values which cannot be placed in bins of the same size (eg. 3). Therefor, for now, I will proceed with analysis with `grade` values as they are.
+To better represent this, all 3 variables will be updated to factor types with set levels. I did consider binning the `grade` values; however, I was unsure of how consistent size bins could be set. The two bins identified in the dictionary are from 1-3 and 11-13, leaving 7 remaining possible values which cannot be placed in bins of the same size (eg. 3). Therefor, for now, I will proceed with analysis with `grade` values as they are.
 
 ```{r}
 house_prices_clean <- house_prices_clean %>% 
@@ -79,7 +83,7 @@ Check for aliased variables using the alias() function (this takes in a formula 
 alias(price ~ ., data = house_prices_clean)
 ```
 
-From the above `sqft_basement` appears to be an alias with `sqft_living` and `sqft_above`. I will therefore remove `sqft_basement` to avoid multicollinearity.
+From the above `sqft_basement` appears to be aliased with `sqft_living` and `sqft_above`. I will therefore remove `sqft_basement` to avoid multicollinearity.
 
 ```{r}
 house_prices_trim <- house_prices_clean %>% 
@@ -107,11 +111,11 @@ house_prices_trim %>%
   ggpairs(progress = FALSE)
 ```
 
-`sqft_living` has a Correlation Coefficient of 0.702, the highest of the returned Correlation Coefficients, and is indicated as being statistically significant. I will therefor use this as the first predictor in my model.
+`sqft_living` has a strong positive Correlation Coefficient of 0.702, the highest of the returned Correlation Coefficients, and is indicated as being statistically significant. I will therefor use this as the first predictor in my model.
 
 ### Build Model With 1st Predictor
 
-When first generating my diagnostic plots, these failed. I believe this was due to a skewed distribtion of `sqft_living`. At the same time I noticed that the `price` distribution was also skewed. I have therefor created a new `sqft_living_log` and `price_log` below which both have more normal distributions and I will use these in my model
+When first generating my diagnostic plots, these failed. I believe this was due to a skewed distribtion of `sqft_living`. At the same time I noticed that the `price` distribution was also skewed. I have therefor created a new log transformation of both variables (`sqft_living_log`, `price_log`) below which both have more normal distributions and I will use these in my model
 
 ```{r}
 house_prices_trim <- house_prices_trim %>%
@@ -123,6 +127,13 @@ house_prices_trim <- house_prices_trim %>%
 house_prices_trim <- house_prices_trim %>%
   mutate(sqft_living_log = log(sqft_living)) %>% 
   select(-sqft_living)
+```
+
+Re-running `ggpairs()` using these new variables, there still appears to be a strong correlation between `price_log` and `sqft_living_log`. I will therefor proceed in using `sqft_living_log` as my first predictor.
+
+```{r message=FALSE, warning=FALSE}
+house_prices_trim %>% 
+  ggpairs(progress = FALSE)
 ```
 
 ```{r}
@@ -147,7 +158,7 @@ For the purposes of allowing me to proceed in the context of the homework I'm go
 summary(model_1)
 ```
 
-- r2 = 0.4555
+- r2 = 0.4555, meaning model explains 46% of variation in `price_log`.
 - Residual Standard Error = 0.3886 on 21611 degrees of freedom
 - Impact of predictor `sqft_living_log` is statistically significant based on p-value of <2e-16.
 
@@ -167,7 +178,7 @@ house_prices_resid <- house_prices_trim %>%
 ggpairs(house_prices_resid, progress = FALSE)
 ```
 
-`lat` has a Correlation Coefficient of 0.573 with the residuals and is indicated as being statistically significant. I will therefor use this as the second predictor in my model.
+`lat` has a moderately positive Correlation Coefficient of 0.573 with the residuals and is indicated as being statistically significant. I will therefor use this as the second predictor in my model.
 
 ```{r}
 
@@ -193,7 +204,7 @@ I will accept the above diagnostic plots as being ok and proceed.
 summary(model_2)
 ```
 
-- r2 = 0.6343 
+- r2 = 0.6343, meaning model explains 63% of variation in `price_log`.
 - Residual Standard Error = 0.3185 on 21610 degrees of freedom
 - Impact of predictor `sqft_living_log` is statistically significant based on p-value of <2e-16.
 - Impact of predictor `lat` is statistically significant based on p-value of <2e-16.
@@ -239,7 +250,7 @@ I will accept the above diagnostic plots as being ok and proceed.
 summary(model_3)
 ```
 
-- r2 = 0.6509
+- r2 = 0.6509, meaning model explains 65% of variation in `price_log`.
 - Residual Standard Error = 0.3112 on 21609 degrees of freedom
 - Impact of predictor `sqft_living_log` is statistically significant based on p-value of <2e-16.
 - Impact of predictor `lat` is statistically significant based on p-value of <2e-16.
@@ -286,7 +297,7 @@ I will accept the above diagnostic plots as being ok and proceed.
 summary(model_4)
 ```
 
-- r2 = 0.7155
+- r2 = 0.7155, meaning model explains 72% of variation in `price_log`.
 - Residual Standard Error = 0.2809 on 21598 degrees of freedom
 - Impact of predictor `sqft_living_log` is statistically significant based on p-value of <2e-16.
 - Impact of predictor `lat` is statistically significant based on p-value of <2e-16.
