@@ -129,7 +129,12 @@ house_prices_trim <- house_prices_trim %>%
   select(-sqft_living)
 ```
 
-Re-running `ggpairs()` using these new variables, there still appears to be a strong correlation between `price_log` and `sqft_living_log`. I will therefor proceed in using `sqft_living_log` as my first predictor.
+Re-running `ggpairs()` using these new variables, there still appears to be a strong correlation between `price_log` and `sqft_living_log`. Calculating the Correlation Coefficient confirms there is a strong positive correlation, so I proceed in using `sqft_living_log` as my first predictor.
+
+```{r}
+house_prices_trim %>%
+  summarise(cor(price_log, sqft_living_log))
+```
 
 ```{r message=FALSE, warning=FALSE}
 house_prices_trim %>% 
