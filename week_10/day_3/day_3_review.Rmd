@@ -1,0 +1,206 @@
+---
+title: "Week 10 / Day 3 / Review"
+output: html_notebook
+---
+
+# Load Libraries / Read Data
+
+```{r}
+library(tidyverse)
+library(modelr)
+library(GGally)
+library(ggfortify)
+library(skimr)
+```
+
+```{r}
+kc_houses <- read_csv("data/kc_house_data.csv")
+```
+
+# Explore Data
+
+We want to build an explanatory model for `price`, so lets look at its distribution. We can see from the below that it's highly right skewed.
+
+```{r}
+ggplot(data = kc_houses, aes(x = price)) +
+  geom_histogram()
+```
+
+## Feature Engineering
+
+```{r}
+kc_houses_trim <- kc_houses %>%
+  select(-id, -date) %>% 
+  mutate(has_been_renovated = yr_renovated != 0,
+         waterfront = as.logical(waterfront),
+         grade = as.factor(grade)) %>% 
+  select(-yr_renovated)
+```
+
+Rather than running `ggpairs()` across all variables, try grouping these into variables you think are associated.
+
+### Explore Group 1
+
+Group 1: Size of House: bedrooms, bathrooms, sqft_living, sqft_lot, floors, sqft_above, sqft_above
+
+```{r}
+kc_houses_trim %>%
+  select(price, bedrooms, bathrooms, sqft_living, sqft_lot, floors, sqft_above, sqft_above) %>% 
+  ggpairs(progress = FALSE)
+```
+
+### Explore Group 2
+
+Group 2: Location: waterfront, view, lat, long, zipcode
+
+```{r}
+kc_houses_trim %>%
+  select(price, waterfront, view, lat, long, zipcode) %>% 
+  ggpairs(progress = FALSE)
+```
+
+### Explore Group 3
+
+Group 3: Current State: has_been_renovated, condition, grade
+
+```{r}
+kc_houses_trim %>%
+  select(price, has_been_renovated, condition, grade) %>% 
+  ggpairs(progress = FALSE)
+```
+
+### Explore Group 4
+
+Group 4: Age: yr_built
+
+```{r}
+ggplot(kc_houses_trim, aes(x = yr_built, y = price)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm", colour = "red")
+```
+
+## Select Initial Predictor Candidates from Each Group
+
+After exploration, the following look like to candidates:
+
+- sqft_living
+- lat or waterfront
+- grade
+- yr_build
+
+## Check for Correlation & Aliases In Selected Initial Predictor Candidates
+
+```{r}
+
+kc_houses_trim %>% 
+  select(price, sqft_living, lat, waterfront, grade, yr_built) %>% 
+  ggpairs(progress = FALSE)
+
+```
+
+```{r}
+alias(price, sqft_living, lat, watefront, grade, yr_built, 
+      data = kc_houses_trim)
+```
+
+## Create Candidates Tibble
+
+```{r}
+kc_houses_candidates <- kc_houses_trim %>% 
+  select(price, sqft_living, lat, waterfront, grade, yr_built)
+```
+
+# Build Model
+
+```{r}
+model_1 <- lm(log(price) ~ sqft_living, data = kc_houses_candidates)
+```
+
+## Check Model Summary
+
+```{r}
+summary(model_1)
+```
+
+## Check Diagnostics
+
+```{r}
+autoplot(model_1)
+```
+
+# 2nd Predictor
+
+## Add Residuals
+
+Remember to remove predictors that are already in the model - `sqft_living` and `price`.
+
+```{r}
+
+kc_resid <- kc_houses_candidates %>%
+  add_residuals(model_1) %>% 
+  select(-sqft_living, -price)
+
+```
+
+## Check Remaining Predictor Candidates Against Residuals for Correlation
+
+From the below we can see that there appears to be a strong correlation between `lat`, `waterfront` and `grade` and the residuals.
+
+```{r}
+kc_resid %>% 
+  ggpairs(progress = FALSE)
+```
+## Create 2nd Model
+
+```{r}
+model_2a <- lm(log(price) ~ sqft_living + lat, data = kc_houses_candidates)
+```
+
+## Check Model Summary
+
+```{r}
+summary(model_2a)
+```
+
+## Check Diagnostics
+
+```{r}
+autoplot(model_2a)
+```
+
+While the diagnostics show an increase in heteroskedasticity, the residuals appear to show no clear trend and are normally distributed.
+
+Final Model: log(price) ~ sqft_living + lat
+
+Interpretation: The price of a house in KC country can be explained by a combination of it's size (sqft of the living space) and it's latitude (Northerness).
+
+Example: For a house at 1910 sqft (median sqft) located at latitude 47.56 (median lat), the predicted price would be $437884.3 (low estimate = 321261.3, high estimate = 596843.4).
+
+
+as calculated below.
+
+Step 1.
+outcome = b0 + b1 * 1st Predictor + b2 * 2nd Predictor
+
+Step 2.
+log(price) = b0(intercept) + b1(coefficient) * 1st Predictor + b2(coefficient) * 2nd Predictor
+
+Step 3.
+log(price) = b0(intercept) + b1(coefficient) * `sqft_living` + b2(coefficient) * `lat`
+
+Step 4.
+log(price) = -62.56 + 3.863e-04 * `1910` + 1.573 * `47.56` = 12.98971
+
+Step 5.
+price = e^12.98971 (exp 12.98971 ) = 437884.3
+
+```{r}
+
+# Taking log(price) and RSE, we can say price within +- bracket.
+
+exp(12.98971 + c(-0.3097, 0.3097))
+
+```
+
+
+
