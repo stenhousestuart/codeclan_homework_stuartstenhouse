@@ -1,0 +1,285 @@
+---
+title: "Week 10, Day 5"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(modelr)
+library(GGally)
+library(ggfortify)
+library(skimr)
+```
+
+```{r}
+red_wine <- read_csv("data/wine_quality_red.csv")
+white_wine <- read_csv("data/wine_quality_white.csv")
+```
+
+# Aim
+
+Model the `quality` of the wine data to determine which physiochemical properties make a wine ‘good'.
+
+Outcome Variable = `quality`.
+
+# Explore Data
+
+```{r}
+glimpse(red_wine)
+```
+
+```{r}
+alias(quality ~ ., data = red_wine)
+```
+
+## Observations
+
+1. No need for `wine_id`.
+2. No missing/NA data.
+3. No aggregated data.
+4. No aliases identified using `alias()`
+5. Region will need updated to a factor.
+6. The following variables all have positive skews so may require log transformation to increase normality.
+- fixed_acidity
+- volatile_acidity
+- citric_acid
+- residual_sugar
+- chlorides
+- free_sulfur_dioxide
+- total_sulfur_dioxide
+- sulphates
+- alcohol
+
+7. Unsure on whether or not to make `p_h` a factor as it does have a fixed range of 0-14. From research online:
+
+"there are two scales that can be used to measure how acidic wine is, which include pH and total acidity, the latter of which is measured in grams per liter. The pH measurement aims to identify the total concentration of hydrogen ions that are present in the solution. (https://sensorex.com/ph-wine-making)"
+
+# Data Preparation
+
+```{r}
+
+red_wine_clean <- red_wine %>% 
+  select(-wine_id) %>% 
+  mutate(region = as.factor(region))
+
+```
+
+# Model Ideas
+
+To make it easier to initially explore potential predictor candidates, I have seperate the variables into 4 groups based on the context provided by the data dictionary.
+
+Group 1 / Acidity: fixed_acidity, volatile_acidity, citric_acid, p_h
+Group 2 / Sulfur Dioxide: free_sulfur_dioxide, total_sulfur_dioxide, sulphates
+Group 3 / Other Physiochemical Properties: residual_sugar, chlorides, density, alcohol
+Group 4 / Location: region
+
+## Explore Group 1
+
+fixed_acidity, volatile_acidity, citric_acid, p_h
+
+```{r}
+red_wine_clean %>%
+  select(quality, fixed_acidity, volatile_acidity, citric_acid, p_h) %>% 
+  ggpairs(progress = FALSE)
+```
+
+- No candidates with moderate or higher correlation to quality.
+- Highest is `volatitle_acidity` which has a weak negative correlation (-0.364) that is statistically significant.
+
+## Explore Group 2
+
+free_sulfur_dioxide, total_sulfur_dioxide, sulphates
+
+```{r}
+red_wine_clean %>%
+  select(quality, free_sulfur_dioxide, total_sulfur_dioxide, sulphates) %>% 
+  ggpairs(progress = FALSE)
+```
+
+- No candidates with moderate or higher correlation to quality.
+- Highest is `sulphates` which has a weak positive correlation (0.230) that is statistically significant.
+
+## Explore Group 3
+
+residual_sugar, chlorides, density, alcohol
+
+```{r}
+red_wine_clean %>%
+  select(quality, residual_sugar, chlorides, alcohol) %>% 
+  ggpairs(progress = FALSE)
+```
+
+- `alcohol` has a moderate poisitve correlation (0.454) with quality that is statistically significant.
+
+## Explore Group 4
+
+region
+
+```{r}
+
+red_wine_clean %>%
+  select(quality, region) %>%
+  ggplot() +
+  geom_boxplot(aes(x = quality, y = region))
+  
+```
+
+- `region` does not appear to be strongly correlated to quality.
+
+```{r message=FALSE, warning=FALSE}
+red_wine_clean %>% 
+  ggpairs(progress = FALSE)
+```
+
+## Findings
+
+After exploration, the following look like the best initial candidates:
+
+`alcohol` has a moderate positive correlation (0.454)
+`volatile_acidity` which has a weak negative correlation (-0.364)
+`sulphates` which has a weak positive correlation (0.230)
+
+I will now check for any correlation between these three candidates.
+
+```{r}
+red_wine_clean %>% 
+  select(alcohol, volatile_acidity, sulphates) %>% 
+  ggpairs(progress = FALSE)
+```
+
+No evidence of strong correlation between these candidates, so for ease of working with I will now add these to a new tibble.
+
+```{r}
+red_wine_trim <- red_wine_clean %>% 
+  select(quality, alcohol, volatile_acidity, sulphates)
+```
+
+# 1st Predictor
+
+## Build Model
+
+```{r}
+model_1a <- lm(quality ~ alcohol, 
+              data = red_wine_trim)
+```
+
+```{r}
+model_1b <- lm(quality ~ volatile_acidity, 
+              data = red_wine_trim)
+```
+
+```{r}
+model_1c <- lm(quality ~ sulphates, 
+              data = red_wine_trim)
+```
+
+## Check Diagnostics
+
+```{r}
+autoplot(model_1a)
+```
+
+Plot 1: No strong evidence of a pattern.
+Plot 2: Distribution of standardised residuals appears fairly normal.
+Plot 3: No strong evidence of funneling.
+
+I will consider these diagnostics as acceptable.
+
+```{r}
+autoplot(model_1b)
+```
+
+Plot 1: No strong evidence of a pattern.
+Plot 2: Distribution of standardised residuals appears fairly normal.
+Plot 3: No strong evidence of funneling.
+
+I will consider these diagnostics as acceptable.
+
+```{r}
+autoplot(model_1c)
+```
+
+Plot 1: Some evidence of pattern.
+Plot 2: Distribution of standardised residuals appears fairly normal.
+Plot 3:Some evidence of pattern.
+
+I will consider these diagnostics as not-acceptable.
+
+## Check Summaries
+
+As `model_1c` was deemed to have failed diagnostics, I will only check the summaries for `model_1a` and `model_1b`.
+
+```{r}
+summary(model_1a)
+```
+
+Multiple R-Squared: 0.206
+P-Value: <2e-16 ***
+Residual Standard Error: 0.7564
+
+```{r}
+summary(model_1b)
+```
+
+Multiple R-Squared:  0.1327
+P-Value: <2e-16 ***
+Residual Standard Error: 0.7905
+
+## Findings
+
+The effect of both `alcohol` and `volatile_acidity` on `quality` was found to be statistically significant. As `alcohol` was found to have the greater Multiple R-Squared value, this will be the first predictor I add to the model.
+
+# 2nd Predictor
+
+## Add Residuals & Explore Predictor Correlation
+
+From the below `volatile_acidity` appears to have the highest correlation, which is also statistically significant with the residuals. This will therefor be the second predictor that I add to the model.
+
+```{r}
+red_win_resid <- red_wine_trim %>%
+  add_residuals(model_1a) %>% 
+  select(-quality, -alcohol)
+```
+
+```{r}
+red_win_resid %>% 
+  ggpairs(progress = FALSE)
+```
+
+## Build Model
+
+```{r}
+model_2a <- lm(quality ~ alcohol + volatile_acidity, 
+              data = red_wine_trim)
+```
+
+## Check Diagnostics
+
+```{r}
+autoplot(model_2a)
+```
+
+Plot 1: No strong evidence of a pattern.
+Plot 2: Distribution of standardised residuals appears fairly normal.
+Plot 3: No strong evidence of funneling.
+
+I will consider these diagnostics as acceptable.
+
+## Check Summary
+
+```{r}
+summary(model_2a)
+```
+
+Multiple R-Squared: 0.2834
+alcohol P-Value: <2e-16 ***
+volatile_acidity P-Value: <2e-16 ***
+Residual Standard Error: 0.7188
+
+## Findings
+
+The effect of both `alcohol` and the newly added predictor `volatile_acidity` on `quality` was found to be statistically significant. The R-squared value has increase FROM 0.206 TO 0.2834.
+
+# 3rd Predictor
+
+## Add Residuals & Explore Predictor Correlation
