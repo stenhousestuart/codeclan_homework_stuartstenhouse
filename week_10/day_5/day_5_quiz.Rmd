@@ -1,0 +1,50 @@
+---
+title: "Week 10, Day 5, Quiz"
+output: html_notebook
+---
+
+# 1.
+Q. I want to predict how well 6 year-olds are going to do in their final school exams. Using the following variables am I likely under-fitting, fitting well or over-fitting? Postcode, gender, reading level, score in maths test, date of birth, family income.
+
+A. I would suggest that there is a good chance that this could end up being over-fitting, due to the number of predictors included. This may result in the model making associations that have occurred randomly meaning the model would not fit well to new data.
+
+# 2.
+Q. If I have two models, one with an AIC score of 34,902 and the other with an AIC score of 33,559 which model should I use?
+
+A. The AIC (Akaike information criterion) can be used to assess the goodness of fit of a model by taking into consideration the fit of the model AND it's complexity (with over-complexity potentially leading to overfitting). When interpreting AIC scores, lower is better and so the model with the score of 33,559 would be prerref in this case.
+
+# 3.
+Q. I have two models, the first with: r-squared: 0.44, adjusted r-squared: 0.43. The second with: r-squared: 0.47, adjusted r-squared: 0.41. Which one should I use?
+
+A. The first model, because:
+
+- Considering the r-square and adjusted r-squared values of the second model, there is a larger different between the two. As the adjusted r-squared value penalises models for the number of predcitors, this would suggest that the second model may be overfit.
+- In contrast, in the second model, there is little different between the r-squared and adjusted r-squared, suggesting the model is not overfit.
+- The adjusted r-squared value of the first model is greater than the second.
+
+# 4.
+Q. I have a model with the following errors: RMSE error on test set: 10.3, RMSE error on training data: 10.4. Do you think this model is over-fitting?
+
+A. No, if the model was over-fitting I would expect the RMSE on the test set to be greater than the RMSE on the training data.
+
+# 5.
+Q. How does k-fold validation work?
+
+A. k-fold validation works by splitting the data into a specified number of folds. It then iterates over itself by the number of folds, each time using one fold as the 'test fold' and the remaining folds as the 'training folds'. In each iteration, the model built using the 'training folds' is tested against the 'test fold' to assess fit. 
+
+For example, if you split data into 5 folds, for each iteration 1 fold would be used as the 'test fold' and the remaining 4 would be used to train the model. This process would be completed 5 times until each fold has been used as the 'test fold'. The result is then 5 different sets of goodness of fit metrics, which an average can then be taken from.
+
+# 6.
+Q. What is a validation set? When do you need one?
+
+A. A validation set is needed to asses if a model is over-fit and may not perform well with new data. A validation set is a randomly selected sample of the data (generally around 20%) that is removed from the data that will be used to build and train the model. Once the model is built, it can then be used to generated predictions based on the validation set and the differences in the predictions and actual values assessed. If the model is well fit, you would expect small differences between the predictions and the actual values in the validation set - if there are significant differences, it would suggest that the model may be overfit.
+
+# 7.
+Q. Describe how backwards selection works.
+
+A. When using backwards selection, the initial model contains all potential predictors. Then at each stage the predictor that contributes least to the models overall R-Squared is removed. The user is then presented with a range of models which vary in the number of predictors they contain. 
+
+# 8.
+Q. Describe how best subset selection works.
+
+A. When using best subset selection, the user can set the maximum number of predictors they want the model to contain and then all combinations of predictors are considered to return the model with the highets R-Squared value.
