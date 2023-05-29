@@ -22,7 +22,7 @@ white_wine <- read_csv("data/wine_quality_white.csv")
 
 Model the `quality` of the wine data to determine which physiochemical properties make a wine ‘good'.
 
-For the purposes of this exercise, I will create separate models for white win and red wine as I am interested in whether the propertise that make win 'good' are different depending on the type of wine.
+For the purposes of this exercise, I will create separate models for white win and red wine as I am interested in whether the properties that make win 'good' are different depending on the type of wine.
 
 Other interesting analysis could involve joining the two data sets to determine whether or not the type of wine effects that quality score.
 
