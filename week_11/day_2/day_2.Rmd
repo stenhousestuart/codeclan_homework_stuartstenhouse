@@ -1,0 +1,224 @@
+---
+title: "Week 11, Day 2"
+output: html_notebook
+---
+
+# Load Libraries / Read In Data
+
+```{r}
+library(rpart)
+library(rpart.plot)
+library(tidyverse)
+library(GGally)
+library(janitor)
+library(modelr)
+library(yardstick)
+library(ranger)
+
+titanic_set <- read_csv('data/titanic_decision_tree_data.csv')
+
+shuffle_index <- sample(1:nrow(titanic_set))
+
+# shuffle the data so class order isn't in order - need this for training/testing split later on 
+titanic_set <- titanic_set[shuffle_index, ]
+```
+
+# MVP
+
+## Q1.
+
+```{r}
+titanic_clean <- titanic_set %>%
+  filter(survived %in% c(0,1)) %>%
+# Convert to factor level
+    mutate(sex = as.factor(sex), 
+           age_status = as.factor(if_else(age <= 16, "child", "adult")),
+         class = factor(pclass, levels = c(3,2,1), labels = c("Lower", "Middle", "Upper")), 
+           survived_flag = factor(survived, levels = c(0,1), labels = c("No", "Yes")), 
+           port_embarkation = as.factor(embarked)) %>%
+  select(sex, age_status, class, port_embarkation, sib_sp, parch, survived_flag) %>%
+  na.omit()
+```
+
+## Q2.
+
+From the `ggpairs()` plots below, good candidates for predictors of `survived_flag` look to be:
+
+- `sex`
+- `class`
+
+And to a lesser extent `age_status` and `parch`.
+
+```{r}
+ggpairs(titanic_clean,
+        progress = FALSE)
+```
+
+## Q3.
+
+Create testing and training sets. From initial research online, splitting 80% of the data for use in training and 20% in training appears to be a standard starting point and this is what I will use.
+
+```{r}
+n_data <- nrow(titanic_clean)
+
+test_index <- sample(1:n_data, size = n_data * 0.2)
+
+titanic_test <- slice(titanic_clean, test_index)
+titanic_train <- slice(titanic_clean, -test_index)
+```
+
+
+Based on the below output tables, I am satisfied that the testing and training data is balanced.
+
+```{r}
+titanic_test %>% 
+  tabyl(survived_flag)
+
+titanic_train %>% 
+  tabyl(survived_flag)
+```
+
+## Q4.
+
+Create decision tree.
+
+```{r}
+titanic_fit <- rpart(
+  formula = survived_flag ~ .,
+  data = titanic_train,
+  method = "class"
+)
+```
+
+Plot decision tree.
+
+[fig 1.]
+
+```{r}
+rpart.plot(titanic_fit,
+           yesno = 2, # Sets Yes/No Labels
+           fallen.leaves = TRUE, # Align all end results at bottom.
+           faclen = 6, # Number of levels that are shown for each factor
+           digits = 4) # Number of decimal places
+```
+
+
+
+
+```{r}
+rpart.plot(titanic_fit,
+           yesno = 2, # Sets Yes/No Labels
+           fallen.leaves = TRUE, # Align all end results at bottom.
+           faclen = 6, # Number of levels that are shown for each factor
+           digits = 4) # Number of decimal places
+ 
+```
+
+## Q5.
+
+- What variables are important? 
+The first two variables the model has used to separate are `sex` and `class` suggesting that these are the most important for categorising individual observations. This is in-line with our predictions from question 2. According to the model, `age_status`, `parch` and `port_embarkation` are also important variables.
+
+- What does each node tell you? 
+Depending on the arguments passed to `rpart.plot()` different information can be displayed in each note. In the above plot, each node shows 3 pieces of information.
+
+1. The predicted class. Either yes or no, yes indicating survived, no indicating died.
+2. The probability of survival (eg. we can see that according to the model 40% of overall passengers survived.
+3. The percentage of observations at that stage based on previous classifications.
+
+Who has the highest chance of surviving? 
+Non-lower class children, followed by non-lower class women.
+
+Who has the lowest chance of surviving?
+Lower or middle class adult males.
+
+## Q6.
+
+Add predictions
+
+```{r}
+titanic_test_predictions <- titanic_test %>% 
+  add_predictions(titanic_fit,
+                  type = "class")
+```
+
+Create confusion matrix.
+
+```{r}
+conf_matrix <- titanic_test_predictions %>% 
+  conf_mat(truth = survived_flag,
+           estimate = pred)
+
+conf_matrix
+```
+
+```{r}
+autoplot(conf_matrix,
+         type="heatmap")
+```
+
+```{r}
+autoplot(conf_matrix)
+```
+
+```{r}
+accuracy <- titanic_test_predictions %>% 
+  accuracy(truth = survived_flag,
+           estimate = pred)
+
+accuracy
+```
+
+**Interpretation**
+
+77 predicted dead actually died. (True Negative)
+5 predicted survived actually died. (False Positive)
+
+31 predicted survived actually survived. (True Positive)
+29 predicted dead actually survived. (False Negative)
+
+Current Accuracy: 76%.
+
+- When applied to the test data, the model classified more observations correctly (True Negative + True Positive) than it did incorrectly (False Negative + False Positive).
+- However, the model has a high amount of false negatives, and predicted that 29 people who survived in real life had died.
+- In contrast, only a small number of false positives were returned.
+- Incorrectly predicting that a large number of people who survived had died may suggest that the observations randomly selected to be included in the training data had stronger correlations between certain variables and `survival_flag` = NO than the test data. This could be further assessed by obtaining a larger sample OR by utilising random forest methods.
+
+# Extension
+
+```{r}
+control <- trainControl(
+  method = "repeatedcv", 
+  number = 5, 
+  repeats = 10
+)
+
+tune_grid = expand.grid(
+  mtry = 1:6,
+  splitrule = c("gini", "extratrees"),
+  min.node.size = c(1, 3, 5)
+)
+```
+
+```{r}
+rf_tune <- train(
+  survived_flag ~ ., 
+  data = titanic_train, 
+  method = "ranger",
+  metric = "Kappa",
+  num.trees = 1000,
+  importance = "impurity",
+  tuneGrid = tune_grid, 
+  trControl = control
+)
+
+plot(rf_tune)
+rf_tune
+```
+
+
+
+
+
+
+
