@@ -1,0 +1,211 @@
+---
+title: "Week 11 / Day 3"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(janitor)
+library(skimr)
+library(broom)
+library(factoextra)
+```
+
+```{r}
+customers <- read_csv("data/mall_customers.csv") %>% clean_names()
+```
+
+# MVP
+
+# 1.
+Do some exploratory analysis on the data. Comment on findings.
+
+Findings:
+- The data has no missing values.
+- All variables are numeric, with the exception of `gender` which is character.
+- Viewing spending vs. income, at a glance, it appears as though the data may group naturally into 5 clusters.
+- `gender` does not appear to be associated with spending or income.
+- Individuals under ~40 appear to spend more than individuals greater than ~40.
+- Income appears to be associated with `age`, starting lower before increasing and peaking between approx. 30 - 45, before steadily decreasing.
+- Income values of 54 and 78 both have 12 observations each, with the next most frequent income values having 6. This may suggest an error in data collection (eg. default values on a form) or incorrect data entry.
+
+```{r}
+glimpse(customers)
+```
+
+```{r}
+skim(customers_clean)
+```
+
+```{r}
+customers_clean %>% 
+  ggplot(aes(x = annual_income_k, y = spending_score_1_100)) +
+  geom_point()
+```
+
+```{r}
+customers_clean %>% 
+  ggplot(aes(x = age, y = spending_score_1_100)) +
+  geom_point()
+```
+```{r}
+customers_clean %>% 
+  ggplot(aes(x = age, y = annual_income_k, colour = gender)) +
+  geom_point()
+```
+
+```{r}
+
+customers_clean %>% 
+  ggplot(aes(x = age, y = spending_score_1_100, colour = gender)) +
+  geom_point()
+
+```
+
+```{r}
+customers_clean %>% 
+  count(annual_income_k) %>% 
+  arrange(desc(n))
+```
+
+# 2.
+We are interested in creating a marketing campaign to target customers based on their spending score and annual income. Select an appropriate value for k and perform k-means clustering to find if there are meaningful clusters in the data to target the customers.
+
+Step 1: Select income and spending columns and scale both.
+
+```{r}
+customers_scaled <- customers_clean %>% 
+  select(annual_income_k, spending_score_1_100) %>%
+  mutate(across(everything(),
+         .fns = scale))
+```
+
+Step 2: Create K-Means Clusers Ranging From 1 Cluster to 25 Clusters
+
+```{r}
+
+min_k <- 1
+max_k <- 20
+
+k_clusters <- tibble(k = min_k:max_k) %>% 
+  mutate(kclust = map(k, ~ kmeans(customers_scaled, # Create K-means cluster beteen 1-25 clusters.
+                                  centers = .x,
+                                  nstart = 25)),
+         tidied = map(kclust, tidy), # Tidies `kclust`
+         glanced = map(kclust, glance), # Uses tidied to create a glance
+         augmented = map(kclust, augment, customers_clean)) # Adds labels
+
+# Unnest `glanced` to view `tot.withinss`
+clusterings <- k_clusters %>% 
+  unnest(glanced)
+
+clusterings
+```
+
+Step 3: Use Visualisation To Inform Appropriate K Value
+
+3 visualisations using different methods were used to identify the optimal k-value of 5. This is also in-line with my initial impressions when exploring the data.
+
+Method 1:
+
+Both plots below are the same, just coded in different ways. From these it appears as though 3, 4 or 5 may be appropriate k-values.
+
+```{r}
+clusterings %>% 
+  ggplot(aes(x = k, y = tot.withinss)) +
+  geom_point() +
+  geom_line() +
+  scale_x_continuous(breaks = seq(1, 25, 1))
+```
+
+```{r}
+fviz_nbclust(customers_scaled,
+             kmeans,
+             method = "wss", #within sum of squares
+             nstart = 25)
+```
+
+Method 3:
+
+From the below it appears that 5 is the optimal k value.
+
+```{r}
+fviz_nbclust(customers_scaled,
+             kmeans,
+             method = "silhouette",
+             nstart = 25)
+```
+
+Method 4:
+
+From the below, it suggests that the optimal number of clusters would be 1 - which doesn't make sense. I've tried looking into why this value has been returned, but unfortunately I haven't been able to explain it.
+
+```{r}
+fviz_nbclust(customers_scaled,
+             kmeans,
+             method = "gap_stat",
+             nstart = 25,
+             k.max = 10)
+```
+
+# 3.
+Visualise the clustering for your chosen value of k.
+
+```{r}
+clusterings %>% 
+  unnest(augmented) %>% # Unnest augmented created in step 5.1
+  filter(k == 5) %>% # Set number of clusters
+  ggplot(aes(x = annual_income_k, y = spending_score_1_100, colour = .cluster)) +
+  geom_point()
+```
+
+# 4.
+Do you think the clustering seems a good fit for this data?
+
+Yes, viewing initial data exploration suggested that their may be 5 natural clusters and 5 has been identified as the optimal k value.
+
+# 5.
+Comment on the attributes of one or two of the clusters (maybe even give them an appropriate label if you like - similar to section 4.1 of the ‘Segmentation & clustering intro’ lesson where we saw labels such as “Super Fans” and “Tag-Alongs”).
+
+```{r}
+clusterings %>% 
+  unnest(augmented) %>% # Unnest augmented created in step 5.1
+  filter(k == 5) %>% 
+  group_by(.cluster) %>% 
+  summarise(avg_income_mean = mean(annual_income_k),
+            avg_spending_score_1_100 = mean(spending_score_1_100),
+            avg_age = mean(age),
+            prop_male = sum(gender == "Male") / n(),
+            prop_female = sum(gender == "Female") / n())
+```
+
+Cluster 1: 
+
+- Mid-level income
+- Mid-level spend.
+- Average age of 43.
+- 60% female, 40% male.
+
+Cluster 2:
+- Low-level income.
+- High-level spend.
+- Average age of 25.
+- 60% female, 40% male.
+
+Cluster 3:
+- High-level income.
+- Low-level spend.
+- Average age of 41.
+- 46% female, 54% male.
+
+Cluster 4:
+- High-level income.
+- High-level spend.
+- Average age of 33.
+- 54% female, 46% male.
+
+Cluster 5:
+- Low-level income.
+- Low-level spend.
+- Average age of 45.
+- 61% female, 39% male.
