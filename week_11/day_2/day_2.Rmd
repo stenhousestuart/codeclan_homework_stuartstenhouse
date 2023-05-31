@@ -92,26 +92,12 @@ titanic_fit <- rpart(
 
 Plot decision tree.
 
-[fig 1.]
-
 ```{r}
 rpart.plot(titanic_fit,
            yesno = 2, # Sets Yes/No Labels
            fallen.leaves = TRUE, # Align all end results at bottom.
            faclen = 6, # Number of levels that are shown for each factor
            digits = 4) # Number of decimal places
-```
-
-
-
-
-```{r}
-rpart.plot(titanic_fit,
-           yesno = 2, # Sets Yes/No Labels
-           fallen.leaves = TRUE, # Align all end results at bottom.
-           faclen = 6, # Number of levels that are shown for each factor
-           digits = 4) # Number of decimal places
- 
 ```
 
 ## Q5.
