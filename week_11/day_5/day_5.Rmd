@@ -480,22 +480,19 @@ roc_curve
 
 ## Cross Validation
 
+### Update TRUE/FALSE To "Yes"/"No" for `purchase_mm`
+
+
+```{r}
+
+
+juice_clean_fct <- juice_clean %>%
+  mutate(purchase_mm = if_else(purchase_mm == TRUE, "Yes", "No"),
+         purchase_mm = as.factor(purchase_mm))
+
+```
+
 ### Set Training Specifications
-
-```{r}
-glimpse(juice_clean)
-```
-
-
-```{r}
-
-
-juice_clean_fct <- juice_clean %>% 
-  mutate(purchase_mm = as.factor(purchase_mm),
-         purchase_mm = relevel(purchase_mm, ref = "FALSE"))
-
-```
-
 
 ```{r}
 train_control <-  trainControl(method = "repeatedcv",
@@ -514,6 +511,101 @@ juice_model_1_pred_validate <- train(purchase_mm ~ loyal_ch,
                trControl = train_control,
                method = "glm",
                family = binomial(link = "logit"))
+
+juice_model_1_pred_validate$results$ROC
 ```
 
+```{r}
+juice_model_2_pred_validate <- train(purchase_mm ~ loyal_ch + disc_ch,
+               data = juice_clean_fct,
+               trControl = train_control,
+               method = "glm",
+               family = binomial(link = "logit"))
 
+juice_model_2_pred_validate$results$ROC
+```
+
+```{r}
+juice_model_3_pred_validate <- train(purchase_mm ~ loyal_ch + disc_ch + list_price_diff,
+               data = juice_clean_fct,
+               trControl = train_control,
+               method = "glm",
+               family = binomial(link = "logit"))
+
+juice_model_3_pred_validate$results$ROC
+```
+
+```{r}
+juice_model_4_pred_validate <- train(purchase_mm ~ loyal_ch + disc_ch + list_price_diff + price_diff,
+               data = juice_clean_fct,
+               trControl = train_control,
+               method = "glm",
+               family = binomial(link = "logit"))
+
+juice_model_4_pred_validate$results$ROC
+```
+
+```{r}
+juice_model_5_pred_validate <- train(purchase_mm ~ loyal_ch + disc_ch + list_price_diff + price_diff + disc_mm,
+               data = juice_clean_fct,
+               trControl = train_control,
+               method = "glm",
+               family = binomial(link = "logit"))
+
+juice_model_5_pred_validate$results$ROC
+```
+
+```{r}
+juice_model_5b_pred_validate <- train(purchase_mm ~ loyal_ch + disc_ch + list_price_diff + price_diff + store_id,
+               data = juice_clean_fct,
+               trControl = train_control,
+               method = "glm",
+               family = binomial(link = "logit"))
+
+juice_model_5b_pred_validate$results$ROC
+```
+
+### Results
+
+juice_model_1_pred
+purchase_mm ~ loyal_ch
+AUC 0.8808 / Cross Validated AUC 0.8741937
+AUC Diff. 0.0066063
+
+juice_model_2_pred
+purchase_mm ~ loyal_ch + disc_ch
+AUC 0.8808 / Cross Validated AUC 0.8801089
+AUC Diff. 0.0006911
+
+juice_model_3_pred
+purchase_mm ~ loyal_ch + disc_ch + list_price_diff
+AUC 0.8895 / Cross Validated AUC 0.8880731
+AUC Diff. 0.0014269
+
+juice_model_4_pred
+purchase_mm ~ loyal_ch + disc_ch + list_price_diff + price_diff
+AUC 0.8999 / Cross Validated 0.8982
+AUC Dif. 0.0017
+
+juice_model_5_pred 
+purchase_mm ~ loyal_ch + disc_ch + list_price_diff + price_diff + disc_mm
+AUC 0.8999 / Cross Validated AUC 0.8984135
+AUC Dif. 0.0014865
+
+juice_model_5_pred_b
+purchase_mm ~ loyal_ch + disc_ch + list_price_diff + price_diff + store_id
+AUC 0.9022 / Cross Validated AUC 0.8981727
+AUC Dif. 0.0040273
+
+### Interpretation
+
+- None of the models have a large decrease in AUC following Cross Validation, suggesting that none of the models are overfit.
+
+- Although the Cross Validated AUC increases as the number of predictors increase, it could be argued that the increases are small. For example, if we were to round the Cross Validated AUC to 2x decimal places then the model with 4 predictors would have the same Cross Validated AUC as the two models wit 5x predictors (0.90).
+
+- With the above in mind, to balance AUC score with simplificity, I would interpret the below moddle as being the best predictove classifier in this instance:
+
+juice_model_4_pred
+purchase_mm ~ loyal_ch + disc_ch + list_price_diff + price_diff
+AUC 0.8999 / Cross Validated 0.8982
+AUC Dif. 0.0017
