@@ -1,0 +1,519 @@
+---
+title: "Week 11, Day 5"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(janitor)
+library(GGally)
+library(modelr)
+library(broom)
+library(pROC)
+library(caret)
+```
+
+# MVP
+
+```{r}
+juice <- read_csv("data/orange_juice.csv") %>% clean_names()
+```
+
+```{r}
+glimpse(juice)
+```
+
+```{r}
+summary(juice)
+```
+
+## Data Preperation
+
+### 1. Replace `purchase` with logical `purchase_mm`
+
+```{r}
+juice_clean <- juice %>% 
+  mutate(purchase_mm = if_else(purchase == "MM", TRUE, FALSE), .after = "purchase")
+
+juice_clean <- juice_clean %>% 
+  mutate(purchase_mm = as.factor(purchase_mm)) %>% 
+  select(-purchase)
+```
+
+### 2. Update `store_id`, `special_ch`, `special_mm`, `store7` & `store` To Factors
+
+```{r}
+
+juice_clean <- juice_clean %>%
+  mutate(store_id = as.factor(store_id),
+         special_ch = as.factor(special_ch),
+         special_mm = as.factor(special_mm),
+         store7 = as.factor(store7),
+         store = as.factor(store))
+
+```
+
+### 3. Decide On Management of `weekof_purchase` Variable
+
+For now, I will remove `weekof_purchase` entirely.
+
+```{r}
+
+juice_clean <- juice_clean %>%
+  select(-weekof_purchase)
+
+```
+
+
+### 4. Wrangle `store_id`, `store7` & `store` Variables.
+
+Based on the counts `store` and `store_id` the only difference is that `store` lists a store 0 with 356 observations and `store_id` lists a store 7 with 356 observations. These therefor look to be the same store. As there is an additonal `store7` variable, I will assume that 7 is the correct variable and drop the `store` and `store7` variables.
+
+```{r}
+juice %>% 
+  count(store)
+```
+
+```{r}
+juice %>% 
+  count(store_id)
+```
+
+```{r}
+
+juice_clean <- juice_clean %>%
+  select(-c(store, store7))
+
+```
+
+### 5. Check for Aliases Variables
+
+Findings...
+
+`sale_price_mm` aliased with `price_mm` and `disc_mm` / `sale_price_mm` will be removed.
+`sale_price_ch` aliased with `price_ch` and `disc_ch` / `sale_price_ch` will be removed.
+`price_diff` aliased with `price_ch`, `price_mm`, `disc_ch` & `disc_mm` / `price_diff` will be removed.
+`list_price_diff` aliased with `price_ch` & `price_mm` / `list_price_diff` will be removed.
+
+```{r}
+
+juice_clean <- juice_clean %>%
+  select(-c(sale_price_mm, sale_price_ch, -price_diff, -list_price_diff))
+
+```
+
+```{r}
+alias(purchase_mm ~ ., data = juice_clean)
+```
+
+### 6. Check for Strongly Correlated Potential Predictors
+
+There are still a significant number of variables that relate to price.
+
+- `price_ch`
+- `price_mm`
+- `disc_ch`
+- `disc_mm`
+- `special_ch`
+- `special_mm`
+- `price_diff`
+- `pct_disc_mm`
+- `pct_disc_ch`
+- `list_price_diff`
+
+Having checked to see if any of these are strongly correlated to one another and whether any should be dropped:
+
+- `pct_disc_mm` and `disc_mm` have a very strong positive correlation of 0.999 which is statistically significant.
+- `pct_disc_ch` and `disc_ch` have a very strong positive correlation of 0.999 which is statistically significant.
+
+This is to be expected and for the purposes of this exercise I will drop `pct_disc_mm` and `pct_disc_ch`.
+
+```{r message=FALSE}
+
+juice_clean %>% 
+  select(-c(purchase_mm, store_id, loyal_ch)) %>% 
+  ggpairs(progress = FALSE)
+
+```
+
+```{r}
+
+juice_clean <- juice_clean %>%
+  select(-c(pct_disc_mm, pct_disc_ch))
+
+```
+
+## Explore Potential Predictors
+
+To make it easier to initially explore potential predictor candidates, I have separated the variables into 3 groups.
+
+Group 1 / Price: `price_ch`, `price_mm`, `disc_ch`, `disc_mm`, `special_ch`, `special_mm`, `price_diff`, `list_price_diff`
+Group 2 / Store: `store_id`
+Group 3 / Customer Attributes: `loyal_ch`
+
+### 1. Explore Group 1
+
+The below look like the most promising potential predictors.
+
+- `disc_ch`
+- `disc_mm`
+- `price_diff`
+- `list_price_diff`
+
+```{r message=FALSE}
+juice_clean %>% 
+  select(-c(store_id, loyal_ch)) %>% 
+  ggpairs(progress = FALSE)
+```
+
+### 2. Explore Group 2
+
+There does also appear to be some correlation with `store_id`.
+
+```{r message=FALSE}
+juice_clean %>% 
+  select(purchase_mm, store_id) %>% 
+  ggpairs(progress = FALSE)
+```
+
+### 3. Explore Group 3
+
+There does also appear to be some correlation with `loyal_ch`.
+
+```{r}
+juice_clean %>% 
+  select(purchase_mm, loyal_ch) %>% 
+  ggpairs(progress = FALSE)
+```
+
+## Check Predictors for Statistical Significance
+
+### `disc_ch`
+
+`disc_ch` appears to be a statistically significant predictor.
+
+```{r}
+# From Group 1 / `disc_ch` as predictor
+
+juice_discch_model <- glm(
+  purchase_mm ~ disc_ch,
+  data = juice_clean,
+  family = binomial(link = "logit")
+)
+
+summary(juice_discch_model)
+```
+
+### `disc_mm`
+
+`disc_mm` appears to be a statistically significant predictor.
+
+```{r}
+# From Group 1 / `disc_mm` as predictor
+
+juice_discmm_model <- glm(
+  purchase_mm ~ disc_mm,
+  data = juice_clean,
+  family = binomial(link = "logit")
+)
+
+summary(juice_discmm_model)
+```
+
+### `price_diff`
+
+`price_diff` appears to be a statistically significant predictor.
+
+```{r}
+# From Group 1 / `price_diff` as predictor
+
+juice_pricediff_model <- glm(
+  purchase_mm ~ price_diff,
+  data = juice_clean,
+  family = binomial(link = "logit")
+)
+
+summary(juice_pricediff_model)
+```
+
+### `list_price_diff`
+
+`list_price_diff` appears to be a statistically significant predictor.
+
+```{r}
+# From Group 1 / `loyalch` as predictor
+
+juice_listpricediff_model <- glm(
+  purchase_mm ~ list_price_diff,
+  data = juice_clean,
+  family = binomial(link = "logit")
+)
+
+summary(juice_listpricediff_model)
+```
+
+### `loyal_ch`
+
+`loyal_ch` appears to be a statistically significant predictor.
+
+```{r}
+
+# From Group 2 / `loyal_ch` as predictor
+
+juice_loyalch_model <- glm(
+  purchase_mm ~ loyal_ch,
+  data = juice_clean,
+  family = binomial(link = "logit")
+)
+
+summary(juice_loyalch_model)
+```
+
+### `store_id`
+
+Only some `store_id` values appear to be statistically significant predictors.
+
+```{r}
+
+# From Group 3 / `store_id` as predictor
+
+juice_storeid_model <- glm(
+  purchase_mm ~ store_id,
+  data = juice_clean,
+  family = binomial(link = "logit")
+)
+
+summary(juice_storeid_model)
+```
+
+### Findings
+
+loyal_ch / Statitically Significant / B1 Coefficient -6.0948
+disc_ch / Statitically Significant / B1 Coefficient -3.9819
+list_price_diff / Statitically Significant / B1 Coefficient -3.1438
+price_diff / Statitically Significant / B1 Coefficient -2.16873
+disc_mm / Statitically Significant / B1 Coefficient 1.57365
+store_id / IDs 3, 4 & 7 Statitically Significant.
+
+## Add Predictions And Calculate AUC For Different Predictor Combinations
+
+I will add predictions in the order of B1 Coefficient size and record AUC values.
+
+### 1x Predictor
+
+```{r}
+juice_model_1_pred <- glm(
+  purchase_mm ~ loyal_ch,
+  data = juice_clean,
+  family = binomial(link = "logit")
+)
+
+juice_model_1_summary <- clean_names(tidy(juice_model_1_pred))
+
+juice_model_1_summary
+
+juice_preds <- juice_clean %>% 
+  add_predictions(juice_model_2_pred,
+                  type = "response")
+
+roc_obj_juice_1_pred <- juice_preds %>% 
+  roc(response = purchase_mm,
+      predictor = pred)
+
+auc(roc_obj_juice_1_pred)
+```
+
+### 2x Predictor
+
+```{r}
+
+juice_model_2_pred <- glm(
+  purchase_mm ~ loyal_ch + disc_ch,
+  data = juice_clean,
+  family = binomial(link = "logit")
+)
+
+juice_model_2_summary <- clean_names(tidy(juice_model_2_pred))
+
+juice_model_2_summary
+
+juice_preds <- juice_clean %>% 
+  add_predictions(juice_model_2_pred,
+                  type = "response")
+
+roc_obj_juice_2_pred <- juice_preds %>% 
+  roc(response = purchase_mm,
+      predictor = pred)
+
+auc(roc_obj_juice_2_pred)
+```
+
+### 3x Predictor
+
+```{r}
+
+juice_model_3_pred <- glm(
+  purchase_mm ~ loyal_ch + disc_ch + list_price_diff,
+  data = juice_clean,
+  family = binomial(link = "logit")
+)
+
+juice_model_3_summary <- clean_names(tidy(juice_model_3_pred))
+
+juice_model_3_summary
+
+juice_preds <- juice_clean %>% 
+  add_predictions(juice_model_3_pred,
+                  type = "response")
+
+roc_obj_juice_3_pred <- juice_preds %>% 
+  roc(response = purchase_mm,
+      predictor = pred)
+
+auc(roc_obj_juice_3_pred)
+```
+
+### 4x Predictor
+
+```{r}
+
+juice_model_4_pred <- glm(
+  purchase_mm ~ loyal_ch + disc_ch + list_price_diff + price_diff,
+  data = juice_clean,
+  family = binomial(link = "logit")
+)
+
+juice_model_4_summary <- clean_names(tidy(juice_model_4_pred))
+
+juice_model_4_summary
+
+juice_preds <- juice_clean %>% 
+  add_predictions(juice_model_4_pred,
+                  type = "response")
+
+roc_obj_juice_4_pred <- juice_preds %>% 
+  roc(response = purchase_mm,
+      predictor = pred)
+
+auc(roc_obj_juice_4_pred)
+```
+
+### 5x Predictor A
+
+```{r}
+juice_model_5_pred <- glm(
+  purchase_mm ~ loyal_ch + disc_ch + list_price_diff + price_diff + disc_mm,
+  data = juice_clean,
+  family = binomial(link = "logit")
+)
+
+juice_model_5_summary <- clean_names(tidy(juice_model_5_pred))
+
+juice_model_5_summary
+
+juice_preds <- juice_clean %>% 
+  add_predictions(juice_model_5_pred,
+                  type = "response")
+
+roc_obj_juice_5_pred <- juice_preds %>% 
+  roc(response = purchase_mm,
+      predictor = pred)
+
+auc(roc_obj_juice_5_pred)
+```
+
+### 5x Predictor B
+
+```{r}
+juice_model_5_pred_b <- glm(
+  purchase_mm ~ loyal_ch + disc_ch + list_price_diff + price_diff + store_id,
+  data = juice_clean,
+  family = binomial(link = "logit")
+)
+
+juice_model_5_summary_b <- clean_names(tidy(juice_model_5_pred_b))
+
+juice_model_5_summary
+
+juice_preds <- juice_clean %>% 
+  add_predictions(juice_model_5_pred_b,
+                  type = "response")
+
+roc_obj_juice_5_pred_b <- juice_preds %>% 
+  roc(response = purchase_mm,
+      predictor = pred)
+
+auc(roc_obj_juice_5_pred_b)
+```
+
+### Findings
+
+Model Name / Formula / AUC
+
+juice_model_1_pred / purchase_mm ~ loyal_ch / AUC 0.8808
+juice_model_2_pred / purchase_mm ~ loyal_ch + disc_ch / AUC 0.8808
+juice_model_3_pred / purchase_mm ~ loyal_ch + disc_ch + list_price_diff / AUC 0.8895
+juice_model_4_pred / purchase_mm ~ loyal_ch + disc_ch + list_price_diff + price_diff / AUC 0.8999
+juice_model_5_pred / purchase_mm ~ loyal_ch + disc_ch + list_price_diff + price_diff + disc_mm / AUC 0.8999
+juice_model_5_pred_b / purchase_mm ~ loyal_ch + disc_ch + list_price_diff + price_diff + store_id / 0.9022
+
+We can see from the above results that the below model returns the highest AUC.
+
+purchase_mm ~ loyal_ch + disc_ch + list_price_diff + price_diff + store_id
+
+### Plot ROC Curve for All 6 Models
+
+We can also plot the ROC Curve for all 6 models to visual the above results. From this, we can see that "5b" does indeed appear to be the best option at this stage.
+
+```{r}
+roc_curve <- ggroc(data = list("1" = roc_obj_juice_1_pred,
+                               "2" = roc_obj_juice_2_pred,
+                               "3" = roc_obj_juice_3_pred,
+                               "4" = roc_obj_juice_4_pred,
+                               "5" = roc_obj_juice_5_pred,
+                               "5b" = roc_obj_juice_5_pred_b),
+                   legacy.axes = TRUE)+
+  coord_fixed()
+
+roc_curve
+```
+
+## Cross Validation
+
+### Set Training Specifications
+
+```{r}
+glimpse(juice_clean)
+```
+
+
+```{r}
+
+
+juice_clean_fct <- juice_clean %>% 
+  mutate(purchase_mm = as.factor(purchase_mm),
+         purchase_mm = relevel(purchase_mm, ref = "FALSE"))
+
+```
+
+
+```{r}
+train_control <-  trainControl(method = "repeatedcv",
+                               number = 5,
+                               repeats = 100,
+                               savePredictions = TRUE,
+                               classProbs = TRUE,
+                               summaryFunction = twoClassSummary)
+```
+
+### Check Validated AUC/ROC Values
+
+```{r}
+juice_model_1_pred_validate <- train(purchase_mm ~ loyal_ch,
+               data = juice_clean_fct,
+               trControl = train_control,
+               method = "glm",
+               family = binomial(link = "logit"))
+```
+
+
