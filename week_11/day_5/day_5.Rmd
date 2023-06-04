@@ -55,7 +55,9 @@ juice_clean <- juice_clean %>%
 
 ### 3. Decide On Management of `weekof_purchase` Variable
 
-For now, I will remove `weekof_purchase` entirely.
+For this task, I am going to assume that week of purchase would correlate in some way to time periods where discounts where offered on either brand. I will also assume that it is the discount that is the predicting factor, not the week.
+
+As data on data on discounts at the time of purchase is available through other variables, for now, I will remove the `weekof_purchase` variable.
 
 ```{r}
 
@@ -313,7 +315,7 @@ juice_model_1_summary <- clean_names(tidy(juice_model_1_pred))
 juice_model_1_summary
 
 juice_preds <- juice_clean %>% 
-  add_predictions(juice_model_2_pred,
+  add_predictions(juice_model_1_pred,
                   type = "response")
 
 roc_obj_juice_1_pred <- juice_preds %>% 
@@ -433,8 +435,6 @@ juice_model_5_pred_b <- glm(
 
 juice_model_5_summary_b <- clean_names(tidy(juice_model_5_pred_b))
 
-juice_model_5_summary
-
 juice_preds <- juice_clean %>% 
   add_predictions(juice_model_5_pred_b,
                   type = "response")
@@ -455,7 +455,7 @@ juice_model_2_pred / purchase_mm ~ loyal_ch + disc_ch / AUC 0.8808
 juice_model_3_pred / purchase_mm ~ loyal_ch + disc_ch + list_price_diff / AUC 0.8895
 juice_model_4_pred / purchase_mm ~ loyal_ch + disc_ch + list_price_diff + price_diff / AUC 0.8999
 juice_model_5_pred / purchase_mm ~ loyal_ch + disc_ch + list_price_diff + price_diff + disc_mm / AUC 0.8999
-juice_model_5_pred_b / purchase_mm ~ loyal_ch + disc_ch + list_price_diff + price_diff + store_id / 0.9022
+juice_model_5_pred_b / purchase_mm ~ loyal_ch + disc_ch + list_price_diff + price_diff + store_id / AUC 0.9022
 
 We can see from the above results that the below model returns the highest AUC.
 
@@ -480,8 +480,9 @@ roc_curve
 
 ## Cross Validation
 
-### Update TRUE/FALSE To "Yes"/"No" for `purchase_mm`
+To for over-fit, we will use cross-validation.
 
+### Update TRUE/FALSE To "Yes"/"No" for `purchase_mm`
 
 ```{r}
 
@@ -584,7 +585,7 @@ AUC Diff. 0.0014269
 
 juice_model_4_pred
 purchase_mm ~ loyal_ch + disc_ch + list_price_diff + price_diff
-AUC 0.8999 / Cross Validated 0.8982
+AUC 0.8999 / Cross Validated AUC 0.8982
 AUC Dif. 0.0017
 
 juice_model_5_pred 
@@ -599,11 +600,11 @@ AUC Dif. 0.0040273
 
 ### Interpretation
 
-- None of the models have a large decrease in AUC following Cross Validation, suggesting that none of the models are overfit.
+- None of the models have a large decrease in AUC following Cross Validation, suggesting that none of the models are over-fit.
 
 - Although the Cross Validated AUC increases as the number of predictors increase, it could be argued that the increases are small. For example, if we were to round the Cross Validated AUC to 2x decimal places then the model with 4 predictors would have the same Cross Validated AUC as the two models wit 5x predictors (0.90).
 
-- With the above in mind, to balance AUC score with simplificity, I would interpret the below moddle as being the best predictove classifier in this instance:
+- With the above in mind, to balance AUC score with simplicity, I would interpret the below model as being the best predictive classifier in this instance:
 
 juice_model_4_pred
 purchase_mm ~ loyal_ch + disc_ch + list_price_diff + price_diff
