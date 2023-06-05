@@ -290,12 +290,12 @@ summary(juice_storeid_model)
 
 ### Findings
 
-loyal_ch / Statitically Significant / B1 Coefficient -6.0948
-disc_ch / Statitically Significant / B1 Coefficient -3.9819
-list_price_diff / Statitically Significant / B1 Coefficient -3.1438
-price_diff / Statitically Significant / B1 Coefficient -2.16873
-disc_mm / Statitically Significant / B1 Coefficient 1.57365
-store_id / IDs 3, 4 & 7 Statitically Significant.
+loyal_ch / Statistically Significant / B1 Coefficient -6.0948
+disc_ch / Statistically Significant / B1 Coefficient -3.9819
+list_price_diff / Statistically Significant / B1 Coefficient -3.1438
+price_diff / Statistically Significant / B1 Coefficient -2.16873
+disc_mm / Statistically Significant / B1 Coefficient 1.57365
+store_id / IDs 3, 4 & 7 Statistically Significant.
 
 ## Add Predictions And Calculate AUC For Different Predictor Combinations
 
@@ -608,5 +608,5 @@ AUC Dif. 0.0040273
 
 juice_model_4_pred
 purchase_mm ~ loyal_ch + disc_ch + list_price_diff + price_diff
-AUC 0.8999 / Cross Validated 0.8982
-AUC Dif. 0.0017
+AUC 0.8999 / Cross Validated AUC 0.8982
+AUC Diff. 0.0017
